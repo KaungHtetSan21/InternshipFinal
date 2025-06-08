@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{% block content %}
+<form action="/send_msg/" method="get">
+<label for="chatb"></label>
+<input type="textarea" name="chat1" id="chatb">
+<button type="submit">Submit</button>
+</form>
+{% endblock content %}

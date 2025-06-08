@@ -19,10 +19,30 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from ourapp.views import *
+from chatapp.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', homeview, name= 'homeview')
+    path('', homeview, name= 'homeview'),
+    path('registerview/', registerview, name= 'registerview'),
+    path('loginview/', loginview, name= 'loginview'),
+    path('logoutview/', logoutview, name= 'logoutview'),
+    path('medgrid4/', medgrid4, name= 'medgrid4'),
+    path('medgrid5/', medgrid5, name= 'medgrid5'),
+    path('medlist/<int:id>/', medlist, name= 'medlist'),
+    path('sendmsg/', sendmsg, name= 'sendmsg'),
+    path('medicinedetail/<int:id>/', meddetail, name='meddetail'),
+    path('deleteitem/<int:id>/', deleteitem, name= 'deleteitem'),
+    path('deletedisease/<int:id>/', deletedisease, name= 'deletedisease'),
+
+    path('medicineview/', medview, name= 'medview'),
+    path('diseaseview/', dis_view, name= 'dis_view'),
+    path('addproduct/', addproduct, name= 'addproduct'),
+    path('adddisease/', adddisease, name= 'adddisease'),
+    path('diseaseupdateview/<int:id>/', dis_updateview, name= 'dis_updateview'),
+    path('medicineupdateview/<int:id>/', med_updateview, name= 'med_updateview'),
+  
+
 ]
 
 

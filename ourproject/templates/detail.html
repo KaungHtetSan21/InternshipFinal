@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+
+<div class="bg-light py-3">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 mb-0"><a href="index.html">Home</a> <span class="mx-2 mb-0">/</span>
+         <a href="">Store</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">{{ mdetail_data.item_name|upper }},
+          200mg</strong></div>
+    </div>
+  </div>
+</div>
+
+
+
+
+  
+<div class="col-sm-6 col-lg-4 text-center item mb-4">
+        <img src="{{ mdetail_data.item_photo.url }}" width="200px"><br>
+
+        {{ mdetail_data.item_name|upper }}<br>
+        {{ mdetail_data.item_quatity|upper }} <br>
+        {{ mdetail_data.item_price|upper }} <br>
+        {{ mdetail_data.item_description|upper }} <br>
+        {{ mdetail_data.exp_date|upper }} <br>
+        
+        <button> <a href="">Add to cart</a></button>
+      </div>
+    
+
+
+
+
+{% endblock content %}
