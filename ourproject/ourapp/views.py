@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
 from ourapp.models import *
 from django.contrib.auth.models import User
 from .models import *
@@ -7,6 +7,7 @@ from .form import *
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 
 
 # Create your views here.
@@ -176,3 +177,120 @@ def dis_updateview(request,id):
         return redirect('/diseaseview/')
     context = {'form1': form1}
     return render  (request,'adddisease.html',context)
+
+
+
+
+
+# def addtocart(request,id):
+#     item = Item.objects.get(id= id)
+#     inv_no = request.session.get('invoice_no', None)
+#     if inv_no:
+#         cart_object = Cart.objects.get(id = inv_no)
+#         item_exist=item.cartproduct_set.filter(item=item)
+#         if item_exist.exists():
+#             product_itm = item_exist.first()
+#             product_itm.qty += 1
+#             cart_object.total_amount += item.item_price
+#             product_itm.save()
+#             cart_object.total_amount += item.item_price 
+#             cart_object.save()
+            
+#         else:
+#             cp_obj = CartProduct.objects.create(cart= cart_object, item= item, qty= 1,price =item.item_price)
+#             cart_object.total_amount += item.item_price 
+#             cart_object.save()
+#         print("in_no Have")
+    
+#     else:
+#         cart_object = Cart.objects.create(total_amount=0)
+#         request.session["invoice_no"] = cart_object.id
+#         cp_obj = CartProduct.objects.create(cart= cart_object,item = item,qty= 1,price= item.item_price)
+#         cart_object.total_amount += item.item_price 
+#         cart_object.save()
+        
+#         print("in_no not Have")
+#     return render(request, 'cart.html')
+   
+
+
+
+
+# def cartView(request):
+#     inv_no = request.session.get('invoice_no', None)
+#     if inv_no:
+#         cart = Cart.objects.get(id=inv_no)
+#         cart_products = CartProduct.objects.filter(cart=cart)
+#         total = sum(items.price for items in cart_products)
+#         cart.total_amount = total
+#         cart.save()
+#     else:
+#         cart_products = []
+#         total = 0
+
+#     return render(request, 'cart.html', {
+#         'cart_products': cart_products,
+#         'total': total
+#     })
+
+# def increase_qty(request, id):
+#     item = CartProduct.objects.get(id=id)
+#     item.qty += 1
+#     item.price = item.qty * item.item.item_price
+#     item.save()
+#     return redirect('/')
+
+
+# def decrease_qty(request, id):
+#     item = CartProduct.objects.get(id=id)
+#     if item.qty > 1:
+#         item.qty -= 1
+#         item.price = item.qty * item.item.item_price
+#         item.save()
+#     else:
+#         item.delete()  # Auto remove if qty hits 0
+#     return redirect('/')
+
+
+
+def add_to_cart(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+
+    # Get or create cart (anonymous cart for now)
+    cart, created = Cart.objects.get_or_create(id=request.session.get('cart_id'), defaults={'created_date': timezone.now()})
+    request.session['cart_id'] = cart.id  # Store cart ID in session
+
+    # Check if item already exists in cart
+    cart_item, created = CartProduct.objects.get_or_create(cart=cart, item=item)
+    
+    if not created:
+        cart_item.qty += 1
+        cart_item.price = cart_item.qty * item.item_price
+        cart_item.save()
+    else:
+        cart_item.qty = 1
+        cart_item.price = item.item_price
+        cart_item.save()
+
+    return redirect('cart_list')  # Make sure this URL is defined
+
+
+
+
+def cart_list(request):
+    cart_id = request.session.get('cart_id')
+    cart = get_object_or_404(Cart, id=cart_id)
+    cart_items = CartProduct.objects.filter(cart=cart)
+
+    total_cart_price = sum(item.price for item in cart_items)
+
+    context = {
+        'cart_items': cart_items,
+        'total_cart_price': total_cart_price,
+    }
+    return render(request, 'cart.html', context)
+
+# def remove_cart_item(request, id):
+#     item = CartProduct.objects.get(id=id)
+#     item.delete()
+#     return redirect('/')

@@ -28,7 +28,7 @@
         {{ mdetail_data.item_description|upper }} <br>
         {{ mdetail_data.exp_date|upper }} <br>
         
-        <button> <a href="">Add to cart</a></button>
+        <button> <a href="{% url 'add_to_cart' mdetail_data.id %}">Add to cart</a></button>
       </div>
     
 

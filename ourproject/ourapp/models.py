@@ -14,8 +14,6 @@ class Disease(models.Model):
         return self.disease_name
 
 
-
-
 class Item(models.Model):
     category = models.ForeignKey(Category, on_delete= models.CASCADE)
     disease = models.ForeignKey(Disease, on_delete= models.CASCADE)
@@ -28,3 +26,15 @@ class Item(models.Model):
 
     def __str__(self):
         return self.item_name
+
+
+class Cart(models.Model):
+    total_amount =models.PositiveIntegerField(default=0)
+    created_date = models.DateField(auto_now_add= True)
+    
+class CartProduct(models.Model):
+    cart = models.ForeignKey(Cart,on_delete=models.CASCADE)
+    item = models.ForeignKey(Item,on_delete=models.CASCADE)
+    qty = models.PositiveIntegerField(default=0)
+    price = models.PositiveIntegerField(default=0)
+ 
