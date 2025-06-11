@@ -31,6 +31,10 @@ class Item(models.Model):
 class Cart(models.Model):
     total_amount =models.PositiveIntegerField(default=0)
     created_date = models.DateField(auto_now_add= True)
+    def update_total_amount(self):
+        total_amount = sum(cp.price for cp in self.cartproduct_set.all())
+        self.total_amount = total_amount
+        self.save()
     
 class CartProduct(models.Model):
     cart = models.ForeignKey(Cart,on_delete=models.CASCADE)

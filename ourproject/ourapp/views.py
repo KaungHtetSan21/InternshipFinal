@@ -253,26 +253,52 @@ def dis_updateview(request,id):
 
 
 
+# def add_to_cart(request, item_id):
+#     item = get_object_or_404(Item, id=item_id)
+
+#     # Get or create cart (anonymous cart for now)
+#     cart, created = Cart.objects.get_or_create(id=request.session.get('cart_id'), defaults={'created_date': timezone.now()})
+#     request.session['cart_id'] = cart.id  # Store cart ID in session
+
+#     # Check if item already exists in cart
+#     cart_item, created = CartProduct.objects.get_or_create(cart=cart, item=item)
+    
+#     if not created:
+#         cart_item.qty += 1
+#         cart_item.price = cart_item.qty * item.item_price
+#         cart_item.save()
+#         cart.update_total_amount()
+#     else:
+#         cart_item.qty = 1
+#         cart_item.price = item.item_price
+#         cart_item.save()
+    
+#     return redirect('cart_list')  # Make sure this URL is defined
+
 def add_to_cart(request, item_id):
     item = get_object_or_404(Item, id=item_id)
-
-    # Get or create cart (anonymous cart for now)
-    cart, created = Cart.objects.get_or_create(id=request.session.get('cart_id'), defaults={'created_date': timezone.now()})
-    request.session['cart_id'] = cart.id  # Store cart ID in session
-
-    # Check if item already exists in cart
-    cart_item, created = CartProduct.objects.get_or_create(cart=cart, item=item)
+    cart_id = request.session.get('cart_id', None)
     
+    if cart_id:
+        cart = Cart.objects.get(id=cart_id)
+    else:
+        cart = Cart.objects.create()
+        request.session['cart_id'] = cart.id
+
+    cart_item, created = CartProduct.objects.get_or_create(
+        cart=cart,
+        item=item,
+        defaults={'price': item.item_price, 'qty': 1}
+    )
+
     if not created:
         cart_item.qty += 1
         cart_item.price = cart_item.qty * item.item_price
         cart_item.save()
-    else:
-        cart_item.qty = 1
-        cart_item.price = item.item_price
-        cart_item.save()
 
-    return redirect('cart_list')  # Make sure this URL is defined
+    cart.update_total_amount()  
+
+    return redirect('cart_list')
 
 
 
@@ -282,11 +308,11 @@ def cart_list(request):
     cart = get_object_or_404(Cart, id=cart_id)
     cart_items = CartProduct.objects.filter(cart=cart)
 
-    total_cart_price = sum(item.price for item in cart_items)
+    total_amount = sum(item.price for item in cart_items)
 
     context = {
         'cart_items': cart_items,
-        'total_cart_price': total_cart_price,
+        'total_amount': total_amount,
     }
     return render(request, 'cart.html', context)
 
