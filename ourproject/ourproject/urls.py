@@ -46,9 +46,10 @@ urlpatterns = [
     # path('cartview/', cartView, name= 'cartView'),
     # path('cart/increase/<int:id>/',increase_qty, name='increase_qty'),
     # path('cart/decrease/<int:id>/', decrease_qty, name='decrease_qty'),
-    # path('cart/remove/<int:id>/', remove_cart_item, name='remove_cart_item'),
+    path('cart/remove/<int:cart_item_id>/',remove_cart_item, name='remove_cart_item'),
     path('cartlist/',cart_list , name= 'cart_list'),
     path('cart/add/<int:item_id>/',add_to_cart , name= 'add_to_cart'),
+    path('checkoutview/',checkoutview , name= 'checkoutview'),
 
 ]
 

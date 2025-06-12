@@ -10,6 +10,6 @@ def sendmsg(request):
     model="gemini-2.0-flash", content=msg
     
     )
-
-    
     return render(request, 'testchatbot.html', {'ans':response.text})
+
+

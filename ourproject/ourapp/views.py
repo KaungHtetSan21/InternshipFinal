@@ -316,7 +316,30 @@ def cart_list(request):
     }
     return render(request, 'cart.html', context)
 
-# def remove_cart_item(request, id):
-#     item = CartProduct.objects.get(id=id)
-#     item.delete()
-#     return redirect('/')
+
+
+def remove_cart_item(request, cart_item_id):
+    cart_item = get_object_or_404(CartProduct, id=cart_item_id)
+    
+    # Optional: check that the cart belongs to the user/session
+    cart = cart_item.cart
+    cart_item.delete()
+
+    # Recalculate cart total
+    cart.update_total_amount()
+
+    return redirect('cart_list')  # 'cart' should be your URL name for the cart view
+
+
+def checkoutview(request):
+    cart_id = request.session.get('cart_id')
+    cart = get_object_or_404(Cart, id=cart_id)
+    cart_items = CartProduct.objects.filter(cart=cart)
+
+    total_amount = sum(item.price for item in cart_items)
+
+    context = {
+        'cart_items': cart_items,
+        'total_amount': total_amount,
+    }
+    return render(request,'checkout.html',context)
