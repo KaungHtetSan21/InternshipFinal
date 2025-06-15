@@ -65,13 +65,13 @@
                 	<span class="user-menu d-block d-lg-none"><i class="anm anm-user-al" aria-hidden="true"></i></span>
                     <ul class="customer-links list-inline">
                             {% if request.user is not anonymounsuser %}
-                               <li><a href="{% url 'logoutview' %}">{{request.user}}</a></li>
+                               <li><a href="">{{request.user}}</a></li>
                              {% else %}
-                             <li><a href="/logoutview/">logout</a></li>
+                             <li><a href="">logout</a></li>
                             {% endif %}
                        
                         
-                        <li><a href="{% url 'registerview' %}">Create Account</a></li>
+                        <li><a href="{% url 'customer_register' %}">Create Account</a></li>
                         <li><a href="wishlist.html">Wishlist</a></li>
                     </ul>
                 </div>
@@ -284,10 +284,11 @@
                         <li class="lvl1 parent dropdown"><a href="{% url 'homeview' %}">Create <i class="anm anm-angle-down-l"></i></a>
                         <ul class="dropdown">
                           <li><a href="{% url 'addproduct' %}" class="site-nav">Create Medicine</a></li>
+                          <li><a href="{% url 'addsupplier' %}" class="site-nav">Create Company</a></li>
                           <li><a href="{% url 'adddisease' %}" class="site-nav">Create Disease</a></li>
                           <li><a href="{% url 'dis_view' %}" class="site-nav"> Disease View</a></li>
                           <li><a href="{% url 'medview' %}" class="site-nav"> Medicine View</a></li>
-
+                          <li><a href="{% url 'companyview' %}" class="site-nav"> Company View</a></li>
                         </ul>
                         
                       </ul>

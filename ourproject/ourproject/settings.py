@@ -25,8 +25,10 @@ SECRET_KEY = 'django-insecure-g=pu9c%-=l#9p5*8$srf@6c23lpin8%a3*&lg7-c#u^%)ku7*3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+# settings.py
 
+LOGIN_URL = '/loginview/'  # သင့် login view URL name ကိုလိုက်ပြင်
 
 # Application definition
 

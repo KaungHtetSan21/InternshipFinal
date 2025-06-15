@@ -19,18 +19,19 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from ourapp.views import *
-from chatapp.views import *
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homeview, name= 'homeview'),
-    path('registerview/', registerview, name= 'registerview'),
+     path('register/', customer_register, name='customer_register'),
+
     path('loginview/', loginview, name= 'loginview'),
     path('logoutview/', logoutview, name= 'logoutview'),
     path('medgrid4/', medgrid4, name= 'medgrid4'),
     path('medgrid5/', medgrid5, name= 'medgrid5'),
     path('medlist/<int:id>/', medlist, name= 'medlist'),
-    path('sendmsg/', sendmsg, name= 'sendmsg'),
+    # path('sendmsg/', sendmsg, name= 'sendmsg'),
     path('medicinedetail/<int:id>/', meddetail, name='meddetail'),
     path('deleteitem/<int:id>/', deleteitem, name= 'deleteitem'),
     path('deletedisease/<int:id>/', deletedisease, name= 'deletedisease'),
@@ -39,6 +40,10 @@ urlpatterns = [
     path('diseaseview/', dis_view, name= 'dis_view'),
     path('addproduct/', addproduct, name= 'addproduct'),
     path('adddisease/', adddisease, name= 'adddisease'),
+    path('addsupplier/', addsupplier, name= 'addsupplier'),
+    path('companyview/', companyview, name= 'companyview'),
+    path('supvounchar/', supvounchar, name= 'supvounchar'),
+
     path('diseaseupdateview/<int:id>/', dis_updateview, name= 'dis_updateview'),
     path('medicineupdateview/<int:id>/', med_updateview, name= 'med_updateview'),
     
@@ -46,12 +51,21 @@ urlpatterns = [
     # path('cartview/', cartView, name= 'cartView'),
     # path('cart/increase/<int:id>/',increase_qty, name='increase_qty'),
     # path('cart/decrease/<int:id>/', decrease_qty, name='decrease_qty'),
-    path('cart/remove/<int:cart_item_id>/',remove_cart_item, name='remove_cart_item'),
-    path('cartlist/',cart_list , name= 'cart_list'),
-    path('cart/add/<int:item_id>/',add_to_cart , name= 'add_to_cart'),
-    path('checkoutview/',checkoutview , name= 'checkoutview'),
+    # path('cart/remove/<int:cart_item_id>/',remove_cart_item, name='remove_cart_item'),
+    # path('cartlist/',cart_list , name= 'cart_list'),
+    # path('cart/add/<int:item_id>/',add_to_cart , name= 'add_to_cart'),
+    # path('update-cart-qty/<int:item_id>/', update_cart_qty, name='update_cart_qty'),
 
+    path('checkout/',checkout , name= 'checkout'),
+    path('cart/add/<int:item_id>/', add_to_cart, name='add_to_cart'),
+    path('cart/increase/<int:item_id>/', increase_quantity, name='increase_quantity'),
+    path('cart/decrease/<int:item_id>/', decrease_quantity, name='decrease_quantity'),
+    path('cart/remove/<int:item_id>/',remove_from_cart, name='remove_from_cart'),
+    
+    path('cartlist/', cart_list, name='cart_list'),
+    path('sales-report/',sales_report, name='sales_report'),
 ]
+
 
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

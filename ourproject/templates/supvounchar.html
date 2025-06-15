@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{% block content %}
+
+
+<div class="container">
+    <div class="table-responsive">
+        <table class="table">
+            <h3>List of Medicine</h3>
+            <thead>
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col"> Price</th>
+                    <th scope="col">Purcharse Company</th>
+                    <th scope="col">Added Date</th>
+                    <th scope="col">&nbsp;Actions</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for i in supvounchar_data  %}
+                <tr>
+                    <th scope="row">{{i.id}}</th>
+                    <td> <img src="{{i.item_photo.url}}" width="100px" alt="">   </td>
+                    <td>{{i.item_name}}</td>
+                    <td>{{i.item_quatity}}</td>
+                    <td>{{i.purcharse_price}}</td>
+
+                    <td>{{i.supplier}}</td>
+                    <td>{{i.exp_date}}</td>
+                    <td><button><a href="{% url 'med_updateview' i.id %}" class="btn btn-sm btn-info">edit</a></button>  &nbsp; <button><a href="{% url 'deleteitem' i.id %}" class="btn btn-sm btn-danger">delete</a></button> &nbsp;<button><a href="" class="btn btn-sm btn-info">Purcharse</a></button></td> 
+
+                </tr>
+                {% endfor %}
+            </tbody>
+            
+        </table>
+    </div>
+</div>
+
+{% endblock content %}

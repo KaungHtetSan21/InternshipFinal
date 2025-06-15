@@ -14,3 +14,8 @@ class DiseaseModelForm(forms.ModelForm):
     class Meta:
         model = Disease
         fields = ['item_photo', 'disease_name', 'disease_symptom']
+
+class CompanyModelForm(forms.ModelForm):
+    class Meta:
+        model = Supplier
+        fields = ['company_name', 'company_phnumber', 'company_location']

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{% block content %}
+<h2>🗓️ Daily Sales Report</h2>
+<p>Total Today: {{ daily_total }} Ks</p>
+<ul>
+  {% for sale in daily_sales %}
+    <li>{{ sale.invoice_no }} | {{ sale.total_amount }} Ks | {{ sale.date|date:"H:i" }}</li>
+  {% endfor %}
+</ul>
+
+<hr>
+
+<h2>📅 Monthly Total: {{ monthly_total }} Ks</h2>
+<h2>📆 Yearly Total: {{ yearly_total }} Ks</h2>
+{% endblock content %}

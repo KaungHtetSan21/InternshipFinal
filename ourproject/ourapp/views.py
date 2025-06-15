@@ -8,34 +8,73 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-
+from django.views.decorators.http import require_POST
+from .models import Customer
+from django.contrib.auth.models import User
 
 # Create your views here.
 def homeview(request):
     return render(request,'index.html')
 
-def registerview(request):
-    if request.method == 'POST':
-        Username = request.POST['customer[username]']
-        password = request.POST['customer[password]']
-        
-        first_name = request.POST['customer[first_name]']
-        last_name = request.POST['customer[last_name]']
-        email = request.POST['customer[email]']
-        usr = User.objects.filter(username= Username)
-        if usr.exists():
-            redirect('/register/')
-        else:
-            user_obj = User.objects.create_user(username=Username, first_name=first_name, last_name=last_name ,email=email )
-            user_obj.set_password(password)
-            # user_obj.is_staff=True
-            user_obj.save()
-            return redirect('/')
-    else:
-        return render(request,'register.html')
-    
-    
 
+
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Customer
+
+def customer_register(request):
+    if request.method == 'POST':
+        data = request.POST
+        username = data.get('customer[username]')
+        password = data.get('customer[password]')
+        confirm = data.get('customer[confirm_password]')
+        email = data.get('customer[email]')
+        first_name = data.get('customer[first_name]')
+        last_name = data.get('customer[last_name]')
+        phone = data.get('customer[phno]')
+
+        # ✅ Password check
+        if password != confirm:
+            messages.error(request, "Passwords do not match.")
+            return redirect('customer_register')
+
+        # ✅ Duplicate username check
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already taken.")
+            return redirect('customer_register')
+
+        # ✅ Create user
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            email=email,
+            first_name=first_name,
+            last_name=last_name
+        )
+
+        # ✅ Login after registration
+        login(request, user)
+
+        # ✅ Create related Customer profile
+        Customer.objects.create(
+            user=user,
+            phone=phone,
+            address=''  # Or get address from form if you have it
+        )
+
+        messages.success(request, "Account created and logged in successfully.")
+
+        # ✅ Next redirect logic
+        next_url = request.GET.get('next')
+        if next_url:
+            return redirect(next_url)
+
+        return redirect('cart_list')
+
+    return render(request, 'register.html')
+    
 
    
 def loginview(request):
@@ -48,6 +87,9 @@ def loginview(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
                 return redirect('/')
             else:
                 messages.info(request, 'username or password invalid')
@@ -131,7 +173,32 @@ def med_updateview(request,id):
     context = {'form': form}
     return render  (request,'addproduct.html',context)
 
+def addsupplier(request):
+    form2 = CompanyModelForm()
+    sup_data = Supplier.objects.all()
+    context = {'form2':form2,'sup_data':sup_data}
+    if request.method =='POST':
+        form2 =CompanyModelForm(request.POST,request.FILES)
+        if form2.is_valid():
+            form2.save()
+            print('created new item')
+            
+        else:
+            print('Error')
+            return redirect('/')
+    
+    return render (request, 'addcompany.html',context)
 
+def companyview(request):
+    com_data = Supplier.objects.all()
+    
+    context ={'com_data':com_data}
+    return render(request,'companyview.html', context )
+def supvounchar(request):
+    supvounchar_data = Item.objects.all()
+    
+    context ={'supvounchar_data':supvounchar_data}
+    return render(request,'supvounchar.html', context )
 
 
 
@@ -182,164 +249,231 @@ def dis_updateview(request,id):
 
 
 
-# def addtocart(request,id):
-#     item = Item.objects.get(id= id)
-#     inv_no = request.session.get('invoice_no', None)
-#     if inv_no:
-#         cart_object = Cart.objects.get(id = inv_no)
-#         item_exist=item.cartproduct_set.filter(item=item)
-#         if item_exist.exists():
-#             product_itm = item_exist.first()
-#             product_itm.qty += 1
-#             cart_object.total_amount += item.item_price
-#             product_itm.save()
-#             cart_object.total_amount += item.item_price 
-#             cart_object.save()
-            
-#         else:
-#             cp_obj = CartProduct.objects.create(cart= cart_object, item= item, qty= 1,price =item.item_price)
-#             cart_object.total_amount += item.item_price 
-#             cart_object.save()
-#         print("in_no Have")
-    
-#     else:
-#         cart_object = Cart.objects.create(total_amount=0)
-#         request.session["invoice_no"] = cart_object.id
-#         cp_obj = CartProduct.objects.create(cart= cart_object,item = item,qty= 1,price= item.item_price)
-#         cart_object.total_amount += item.item_price 
-#         cart_object.save()
-        
-#         print("in_no not Have")
-#     return render(request, 'cart.html')
+
+
+  
    
 
+# def cart_list(request):
+#     cart_id = request.session.get('cart_id')
+#     cart = get_object_or_404(Cart, id=cart_id)
+#     cart_items = CartProduct.objects.filter(cart=cart)
+
+#     total_amount = sum(item.price for item in cart_items)
+
+#     context = {
+#         'cart_items': cart_items,
+#         'total_amount': total_amount,
+#     }
+#     return render(request, 'cart.html', context)
 
 
 
-# def cartView(request):
-#     inv_no = request.session.get('invoice_no', None)
-#     if inv_no:
-#         cart = Cart.objects.get(id=inv_no)
-#         cart_products = CartProduct.objects.filter(cart=cart)
-#         total = sum(items.price for items in cart_products)
-#         cart.total_amount = total
-#         cart.save()
-#     else:
-#         cart_products = []
-#         total = 0
-
-#     return render(request, 'cart.html', {
-#         'cart_products': cart_products,
-#         'total': total
-#     })
-
-# def increase_qty(request, id):
-#     item = CartProduct.objects.get(id=id)
-#     item.qty += 1
-#     item.price = item.qty * item.item.item_price
-#     item.save()
-#     return redirect('/')
-
-
-# def decrease_qty(request, id):
-#     item = CartProduct.objects.get(id=id)
-#     if item.qty > 1:
-#         item.qty -= 1
-#         item.price = item.qty * item.item.item_price
-#         item.save()
-#     else:
-#         item.delete()  # Auto remove if qty hits 0
-#     return redirect('/')
 
 
 
-# def add_to_cart(request, item_id):
-#     item = get_object_or_404(Item, id=item_id)
 
-#     # Get or create cart (anonymous cart for now)
-#     cart, created = Cart.objects.get_or_create(id=request.session.get('cart_id'), defaults={'created_date': timezone.now()})
-#     request.session['cart_id'] = cart.id  # Store cart ID in session
 
-#     # Check if item already exists in cart
-#     cart_item, created = CartProduct.objects.get_or_create(cart=cart, item=item)
-    
-#     if not created:
-#         cart_item.qty += 1
-#         cart_item.price = cart_item.qty * item.item_price
-#         cart_item.save()
-#         cart.update_total_amount()
-#     else:
-#         cart_item.qty = 1
-#         cart_item.price = item.item_price
-#         cart_item.save()
-    
-#     return redirect('cart_list')  # Make sure this URL is defined
+
+
+
+
+
+
+
+
+
+# from django.http import JsonResponse
+# from django.views.decorators.csrf import csrf_exempt
+# from django.contrib.auth.decorators import login_required
+# from django.utils.decorators import method_decorator
+# from .models import CartProduct
+
+# @csrf_exempt  # Use @login_required + csrf_protect in production
+# def update_qty(request):
+#     if request.method == 'POST':
+#         item_id = request.POST.get('id')
+#         action = request.POST.get('action')
+
+#         if not request.user.is_authenticated:
+#             return JsonResponse({'error': 'Authentication required'}, status=401)
+
+#         try:
+#             cart_item = CartProduct.objects.get(id=item_id, user=request.user)
+
+#             if action == 'increase':
+#                 cart_item.qty += 1
+#             elif action == 'decrease' and cart_item.qty > 1:
+#                 cart_item.qty -= 1
+#             cart_item.save()
+
+#             subtotal = cart_item.qty * cart_item.price
+
+#             # Get updated total cart amount for this user
+#             cart_items = CartProduct.objects.filter(user=request.user)
+#             total_amount = sum(item.qty * item.price for item in cart_items)
+
+#             return JsonResponse({
+#                 'qty': cart_item.qty,
+#                 'subtotal': subtotal,
+#                 'total_amount': total_amount
+#             })
+
+#         except CartItem.DoesNotExist:
+#             return JsonResponse({'error': 'Item not found'}, status=404)
+
+#     return JsonResponse({'error': 'Invalid request'}, status=400)
+# views.py
+
+
 
 def add_to_cart(request, item_id):
+    if not request.user.is_authenticated:
+        return redirect('loginview')  # မ login ရသေးရင် login သွားမယ်
+
+    user = request.user
     item = get_object_or_404(Item, id=item_id)
-    cart_id = request.session.get('cart_id', None)
-    
-    if cart_id:
-        cart = Cart.objects.get(id=cart_id)
-    else:
-        cart = Cart.objects.create()
-        request.session['cart_id'] = cart.id
 
-    cart_item, created = CartProduct.objects.get_or_create(
-        cart=cart,
-        item=item,
-        defaults={'price': item.item_price, 'qty': 1}
-    )
-
+    cart_item, created = CartItem.objects.get_or_create(user=user, item=item)
     if not created:
-        cart_item.qty += 1
-        cart_item.price = cart_item.qty * item.item_price
-        cart_item.save()
+        cart_item.quantity += 1
+    cart_item.save()
 
-    cart.update_total_amount()  
+    messages.success(request, "Item added to cart.")
+    return redirect('cart_list')
 
+# views.py
+
+@login_required
+def cart_list(request):
+    user = request.user
+    cart_items = CartItem.objects.filter(user=user)
+    total = sum(ci.quantity * ci.item.item_price for ci in cart_items)
+
+    return render(request, 'cart_list.html', {
+        'cart_items': cart_items,
+        'total': total
+    })
+
+
+def increase_quantity(request, item_id):
+    cart = request.session.get('cart', {})
+    if str(item_id) in cart:
+        cart[str(item_id)]['quantity'] += 1
+    request.session['cart'] = cart
+    return redirect('cart_list')
+
+def decrease_quantity(request, item_id):
+    cart = request.session.get('cart', {})
+    if str(item_id) in cart:
+        cart[str(item_id)]['quantity'] -= 1
+        if cart[str(item_id)]['quantity'] <= 0:
+            del cart[str(item_id)]
+    request.session['cart'] = cart
+    return redirect('cart_list')
+
+def remove_from_cart(request, item_id):
+    cart = request.session.get('cart', {})
+    if str(item_id) in cart:
+        del cart[str(item_id)]
+    request.session['cart'] = cart
     return redirect('cart_list')
 
 
 
+from django.contrib.auth.decorators import user_passes_test
 
-def cart_list(request):
-    cart_id = request.session.get('cart_id')
-    cart = get_object_or_404(Cart, id=cart_id)
-    cart_items = CartProduct.objects.filter(cart=cart)
+def is_customer(user):
+    return hasattr(user, 'customer')  # user မှာ customer profile ရှိမရှိစစ်တာ
 
-    total_amount = sum(item.price for item in cart_items)
+@login_required
+@user_passes_test(is_customer)
+def customer_dashboard(request):
+    orders = Sale.objects.filter(user=request.user)  # or related customer
+    return render(request, 'customer/dashboard.html', {'orders': orders})
+
+@login_required
+@user_passes_test(is_customer)
+def customer_invoice_detail(request, invoice_no):
+    sale = get_object_or_404(Sale, invoice_no=invoice_no, user=request.user)
+    sale_items = SaleItem.objects.filter(sale=sale)
+    return render(request, 'customer/invoice_detail.html', {
+        'sale': sale,
+        'sale_items': sale_items,
+    })
+
+
+from django.db.models import Sum
+from django.utils.timezone import now
+from datetime import datetime
+from .models import Sale
+
+def sales_report(request):
+    today = now().date()
+
+    # Daily sales
+    daily_sales = Sale.objects.filter(date__date=today)
+    daily_total = daily_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+    # Monthly sales
+    monthly_sales = Sale.objects.filter(date__year=today.year, date__month=today.month)
+    monthly_total = monthly_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+    # Yearly sales
+    yearly_sales = Sale.objects.filter(date__year=today.year)
+    yearly_total = yearly_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
 
     context = {
-        'cart_items': cart_items,
-        'total_amount': total_amount,
+        'daily_sales': daily_sales,
+        'daily_total': daily_total,
+        'monthly_total': monthly_total,
+        'yearly_total': yearly_total,
     }
-    return render(request, 'cart.html', context)
+    return render(request, 'sales-report.html', context)
 
 
 
-def remove_cart_item(request, cart_item_id):
-    cart_item = get_object_or_404(CartProduct, id=cart_item_id)
-    
-    # Optional: check that the cart belongs to the user/session
-    cart = cart_item.cart
-    cart_item.delete()
-
-    # Recalculate cart total
-    cart.update_total_amount()
-
-    return redirect('cart_list')  # 'cart' should be your URL name for the cart view
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.contrib import messages
+from .models import Customer, CartItem, Sale, SaleItem
+from django.utils.timezone import now
 
 
-def checkoutview(request):
-    cart_id = request.session.get('cart_id')
-    cart = get_object_or_404(Cart, id=cart_id)
-    cart_items = CartProduct.objects.filter(cart=cart)
+@login_required
+def checkout(request):
+    user = request.user
 
-    total_amount = sum(item.price for item in cart_items)
+    try:
+        customer = Customer.objects.get(user=user)
+    except Customer.DoesNotExist:
+        messages.warning(request, "Please register as a customer first.")
+        return redirect('customer_register')
 
-    context = {
-        'cart_items': cart_items,
-        'total_amount': total_amount,
-    }
-    return render(request,'checkout.html',context)
+    cart_items = CartItem.objects.filter(user=user)
+    if not cart_items.exists():
+        messages.warning(request, "Your cart is empty.")
+        return redirect('cart_list')
+
+    total = sum(ci.quantity * ci.item.item_price for ci in cart_items)
+
+    sale = Sale.objects.create(
+        user=user,
+        customer=customer,
+        total_amount=total
+    )
+
+    for ci in cart_items:
+        SaleItem.objects.create(
+            sale=sale,
+            item=ci.item,
+            quantity=ci.quantity,
+            price=ci.item.item_price
+        )
+        # Reduce stock
+        ci.item.item_quantity -= ci.quantity
+        ci.item.save()
+
+    cart_items.delete()  # clear cart
+
+    return render(request, 'checkout.html', {'sale': sale})

@@ -1,74 +1,95 @@
-
 {% extends 'base.html' %}
 {% load static %}
 
+{% block content %}
 
-
-
-    {% block content %}
-
-    
-    <div id="page-content">
-    	<!--Page Title-->
-    	<div class="page section-header text-center">
-			<div class="page-title">
-        		<div class="wrapper"><h1 class="page-width">Create an Account</h1></div>
-      		</div>
-		</div>
-        <!--End Page Title-->
-        
-        <div class="container">
-        	<div class="row">
-                <div class="col-12 col-sm-12 col-md-6 col-lg-6 main-col offset-md-3">
-                	<div class="mb-4">
-                       <form method="post" action="" id="CustomerLoginForm" accept-charset="UTF-8" class="contact-form" enctype="multipart/form-data">{% csrf_token %}	
-                          <div class="row">
-                             <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                                <div class="form-group">
-                                    <label for="username">User Name :</label>
-                                    <input type="text" name="customer[username]" placeholder="" id="username" autofocus="">
-                                </div>
-	                          <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                                <div class="form-group">
-                                    <label for="FirstName">First Name</label>
-                                    <input type="text" name="customer[first_name]" placeholder="" id="FirstName" autofocus="">
-                                </div>
-                               </div>
-                               <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                                <div class="form-group">
-                                    <label for="LastName">Last Name</label>
-                                    <input type="text" name="customer[last_name]" placeholder="" id="LastName">
-                                </div>
-                               </div>
-                            <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                                <div class="form-group">
-                                    <label for="Customerusername"> Username :</label>
-                                    <input type="email" name="customer[username]" placeholder="" id="Customerusername" class="" autocorrect="off" autocapitalize="off" autofocus="">
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                                <div class="form-group">
-                                    <label for="CustomerPassword">Password</label>
-                                    <input type="password" value="" name="customer[password]" placeholder="" id="CustomerPassword" class="">                        	
-                                </div>
-                            </div>
-                          </div>
-                          <div class="row">
-                            <div class="text-center col-12 col-sm-12 col-md-12 col-lg-12">
-                                <input type="submit" class="btn mb-3" value="Create">
-                            </div>
-                         </div>
-                     </form>
-                    </div>
-               	</div>
-            </div>
+<div id="page-content">
+    <div class="page section-header text-center">
+        <div class="page-title">
+            <div class="wrapper"><h1 class="page-width">Create an Account</h1></div>
         </div>
-        
     </div>
 
-    {% endblock content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 main-col offset-md-3">
+                <div class="mb-4">
 
+                    <!-- ✅ Show Django Messages -->
+                    {% if messages %}
+                        <ul class="text-danger">
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
 
+                    <form method="POST" action="{% url 'customer_register' %}" id="CustomerRegisterForm" accept-charset="UTF-8" class="contact-form">
+                        {% csrf_token %}
+                        <div class="row">
 
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="username">Username:</label>
+                                    <input type="text" name="customer[username]" id="username" required class="form-control">
+                                </div>
+                            </div>
 
-   
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="FirstName">First Name:</label>
+                                    <input type="text" name="customer[first_name]" id="FirstName" required class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="LastName">Last Name:</label>
+                                    <input type="text" name="customer[last_name]" id="LastName" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="Customeremail">Email:</label>
+                                    <input type="email" name="customer[email]" id="Customeremail" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="Customerphno">Phone Number:</label>
+                                    <input type="text" name="customer[phno]" id="Customerphno" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="CustomerPassword">Password:</label>
+                                    <input type="password" name="customer[password]" id="CustomerPassword" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <!-- ✅ Confirm Password -->
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="ConfirmPassword">Confirm Password:</label>
+                                    <input type="password" name="customer[confirm_password]" id="ConfirmPassword" class="form-control" required>
+                                </div>
+                            </div>
+
+                        </div>
+                    <div class="row">
+                            <div class="text-center col-12">
+                                <input type="submit" class="btn btn-primary mb-3" value="Create Account">
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

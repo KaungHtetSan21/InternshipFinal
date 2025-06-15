@@ -12,8 +12,15 @@ class cartview(admin.ModelAdmin):
 class cartproductview(admin.ModelAdmin):
     list_display = ['id','item','qty','price']  
 
+class supplier(admin.ModelAdmin):
+    list_display = ['id','company_name','company_phnumber']
+
 admin.site.register(Category,category)
 admin.site.register(Disease)
+admin.site.register(Supplier,supplier)
 admin.site.register(Item)
 admin.site.register(Cart,cartview)
-admin.site.register(CartProduct,cartproductview)
+admin.site.register(CartItem)
+admin.site.register(StockHistory)
+admin.site.register(Sale)
+admin.site.register(SaleItem)
