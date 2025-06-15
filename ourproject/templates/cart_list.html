@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load cart_extras %}
 {% block content %}
-<!-- <div class="container my-5">
+<div class="container my-5">
   <div class="alert alert-success text-center">
     <strong>🎉 CONGRATULATIONS!</strong> YOU'VE GOT FREE SHIPPING!
   </div>
@@ -25,14 +25,14 @@
         {% for cart in cart_items %}
         <tr>
           <td class="d-flex align-items-center gap-3">
-            <img src="{{cart.item_photo.url}}" width="80" height="80" class="rounded" alt="item image">
+            <img src="{{ cart.item.item_photo.url }}" width="80" height="80" class="rounded" alt="item image">
             <div>
-              <strong>{{ cart.item_name }}</strong><br>
-              <small>Size: Default</small><br>
-              <small>Color: N/A</small>
+              <strong>{{ cart.item.item_name }}</strong><br>
+              <small>Brand: {{ cart.item.brand_name }}</small><br>
+              <small>Stock: {{ cart.item.item_quantity }}</small>
             </div>
           </td>
-          <td>${{ cart.item_price }}</td>
+          <td>${{ cart.item.item_price }}</td>
           <td>
             <div class="d-flex align-items-center">
               <a href="{% url 'decrease_quantity' cart.id %}" class="btn btn-outline-secondary btn-sm">−</a>
@@ -41,7 +41,7 @@
               <a href="{% url 'increase_quantity' cart.id %}" class="btn btn-outline-secondary btn-sm">+</a>
             </div>
           </td>
-          <td>${{ cart.subtotal }}</td>
+          <td>${{ cart.quantity|multiply:cart.item.item_price }}</td>
           <td>
             <a href="{% url 'remove_from_cart' cart.id %}" class="btn btn-outline-danger btn-sm">✕</a>
           </td>
@@ -54,18 +54,20 @@
       </tbody>
     </table>
 
+    {% if cart_items %}
     <div class="d-flex justify-content-between align-items-center mt-4">
-      <a href="" class="btn btn-dark">← Continue Shopping</a>
+      <a href="{% url 'homeview' %}" class="btn btn-dark">← Continue Shopping</a>
       <div>
-        <a href="" class="btn btn-outline-danger me-2">🧹 Clear Cart</a>
-        <a href="" class="btn btn-outline-success">🔄 Update Cart</a>
+        <a href="{% url 'cart_list' %}" class="btn btn-outline-danger me-2">🧹 Clear Cart</a>
+        <a href="{% url 'cart_list' %}" class="btn btn-outline-success">🔄 Update Cart</a>
       </div>
     </div>
-    <div class="col-12 col-sm-12 col-md-4 col-lg-4 cart__footer">
+
+    <div class="col-12 col-sm-12 col-md-4 col-lg-4 cart__footer mt-4">
       <div class="solid-border">
         <div class="row border-bottom pb-2">
           <span class="col-12 col-sm-6 cart__subtotal-title">Subtotal</span>
-          <span class="col-12 col-sm-6 text-right"><span class="money">{{ total }}</span></span>
+          <span class="col-12 col-sm-6 text-right"><span class="money">${{ total }}</span></span>
         </div>
         <div class="row border-bottom pb-2 pt-2">
           <span class="col-12 col-sm-6 cart__subtotal-title">Tax</span>
@@ -77,8 +79,7 @@
         </div>
         <div class="row border-bottom pb-2 pt-2">
           <span class="col-12 col-sm-6 cart__subtotal-title"><strong>Grand Total</strong></span>
-          <span class="col-12 col-sm-6 cart__subtotal-title cart__subtotal text-right"><span
-              class="money">$1001.00</span></span>
+          <span class="col-12 col-sm-6 cartsubtotal-title cartsubtotal text-right"><span class="money">${{ total|add:10 }}</span></span>
         </div>
         <div class="cart__shipping">Shipping &amp; taxes calculated at checkout</div>
         <p class="cart_tearm">
@@ -89,28 +90,13 @@
         </p>
         <button type="submit" class="btn btn--small-wide checkout">Process to checkout</button>
 
-        <div class="paymnet-img"><img src="assets/images/payment-img.jpg" alt="Payment"></div>
-        <p><a href="#;">Checkout with Multiple Addresses</a></p>
+        <div class="paymnet-img">
+          <img src="{% static 'assets/images/payment-img.jpg' %}" alt="Payment">
+        </div>
+        <p><a href="#">Checkout with Multiple Addresses</a></p>
       </div>
-
     </div>
-
-    <hr>
-
-
+    {% endif %}
   </form>
-</div> -->
-
-<!-- cart_list.html -->
-<h2>🛒 Your Cart</h2>
-
-<ul>
-  {% for ci in cart_items %}
-    <li>{{ ci.item.item_name }} ({{ ci.quantity }}) = {{ ci.quantity|multiply:ci.item.item_price }} Ks</li>
-  {% endfor %}
-</ul>
-
-<p><strong>Total: {{ total }} Ks</strong></p>
-
-<a href="{% url 'checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+</div>
 {% endblock %}

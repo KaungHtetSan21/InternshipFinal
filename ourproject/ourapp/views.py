@@ -327,19 +327,29 @@ def dis_updateview(request,id):
 
 
 
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def add_to_cart(request, item_id):
-    if not request.user.is_authenticated:
-        return redirect('loginview')  # မ login ရသေးရင် login သွားမယ်
-
-    user = request.user
     item = get_object_or_404(Item, id=item_id)
+    user = request.user
 
-    cart_item, created = CartItem.objects.get_or_create(user=user, item=item)
+    cart, created = Cart.objects.get_or_create(user=user)
+
+    cart_product, created = CartProduct.objects.get_or_create(
+        cart=cart,
+        item=item,
+        defaults={'qty': 1, 'price': item.item_price}
+    )
+
     if not created:
-        cart_item.quantity += 1
-    cart_item.save()
+        cart_product.qty += 1
+        cart_product.price = item.item_price * cart_product.qty
+        cart_product.save()
 
-    messages.success(request, "Item added to cart.")
+    cart.update_total_amount()
+
     return redirect('cart_list')
 
 # views.py
@@ -443,37 +453,47 @@ from django.utils.timezone import now
 @login_required
 def checkout(request):
     user = request.user
-
     try:
         customer = Customer.objects.get(user=user)
     except Customer.DoesNotExist:
-        messages.warning(request, "Please register as a customer first.")
+        messages.warning(request, "Please complete your customer profile.")
         return redirect('customer_register')
 
-    cart_items = CartItem.objects.filter(user=user)
-    if not cart_items.exists():
+    try:
+        cart = Cart.objects.get(user=user)
+        cart_products = CartProduct.objects.filter(cart=cart)
+    except Cart.DoesNotExist:
         messages.warning(request, "Your cart is empty.")
         return redirect('cart_list')
 
-    total = sum(ci.quantity * ci.item.item_price for ci in cart_items)
+    if not cart_products.exists():
+        messages.warning(request, "No items in your cart.")
+        return redirect('cart_list')
+
+    total = sum(cp.price for cp in cart_products)
 
     sale = Sale.objects.create(
+        invoice_no=f'INV-{timezone.now().strftime("%Y%m%d%H%M%S")}',
         user=user,
         customer=customer,
         total_amount=total
     )
 
-    for ci in cart_items:
+    for cp in cart_products:
         SaleItem.objects.create(
             sale=sale,
-            item=ci.item,
-            quantity=ci.quantity,
-            price=ci.item.item_price
+            item=cp.item,
+            quantity=cp.qty,
+            price=cp.price
         )
-        # Reduce stock
-        ci.item.item_quantity -= ci.quantity
-        ci.item.save()
 
-    cart_items.delete()  # clear cart
+        # Reduce item stock
+        cp.item.item_quantity -= cp.qty
+        cp.item.save()
 
+    cart_products.delete()
+    cart.total_amount = 0
+    cart.save()
+
+    messages.success(request, "Checkout successful.")
     return render(request, 'checkout.html', {'sale': sale})
