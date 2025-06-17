@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container my-5">
+  <h2 class="mb-4 text-center">📆 MONTHLY SALES REPORT</h2>
+  <p><strong>Month:</strong> {{ today|date:"F Y" }}</p>
+
+  <hr>
+
+  <h4>Total Sales: {{ total }} Ks</h4>
+
+  {% for sale in sales %}
+    <div class="card mb-3 p-3 shadow-sm">
+      <p><strong>Invoice No:</strong> {{ sale.invoice_no }}</p>
+      <p><strong>Customer:</strong> {{ sale.customer.user.get_full_name }}</p>
+      <p><strong>Total Amount:</strong> {{ sale.total_amount }} Ks</p>
+      <p><strong>Date:</strong> {{ sale.date|date:"d M Y H:i" }}</p>
+    </div>
+  {% empty %}
+    <p class="text-muted">No sales found for this month.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}

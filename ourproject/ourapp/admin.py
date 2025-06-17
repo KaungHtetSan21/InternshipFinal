@@ -15,6 +15,10 @@ class cartproductview(admin.ModelAdmin):
 class supplier(admin.ModelAdmin):
     list_display = ['id','company_name','company_phnumber']
 
+
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'phone', 'address']
+
 admin.site.register(Category,category)
 admin.site.register(Disease)
 admin.site.register(Supplier,supplier)
@@ -24,3 +28,9 @@ admin.site.register(CartItem)
 admin.site.register(StockHistory)
 admin.site.register(Sale)
 admin.site.register(SaleItem)
+
+# from django.contrib import admin
+# from .models import Customer
+
+
+admin.site.register(Customer, CustomerAdmin)

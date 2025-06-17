@@ -24,7 +24,22 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Customer
 
+from django.contrib.auth import login
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from .models import Customer
+
 def customer_register(request):
+    # ✅ Login ဝင်ပြီးသားဆိုရင် Customer profile ရှိလားစစ်မယ်
+    if request.user.is_authenticated:
+        try:
+            request.user.customer  # မရှိရင် DoesNotExist error တက်မယ်
+            messages.warning(request, "Customer profile ရှိပြီးသား ဖြစ်နေပါတယ်။")
+            return redirect('homeview')  # သင့်ရဲ့ main/home page ကို redirect လုပ်
+        except Customer.DoesNotExist:
+            pass  # Profile မရှိသေးလို့ register form ကိုပြပေးမယ်
+
     if request.method == 'POST':
         data = request.POST
         username = data.get('customer[username]')
@@ -71,7 +86,7 @@ def customer_register(request):
         if next_url:
             return redirect(next_url)
 
-        return redirect('cart_list')
+        return redirect('cart_list')  # Default redirect
 
     return render(request, 'register.html')
     
@@ -350,20 +365,28 @@ def add_to_cart(request, item_id):
 
     cart.update_total_amount()
 
-    return redirect('cart_list')
+    return redirect('medview')
 
 # views.py
+
+
 
 @login_required
 def cart_list(request):
     user = request.user
-    cart_items = CartItem.objects.filter(user=user)
-    total = sum(ci.quantity * ci.item.item_price for ci in cart_items)
+    try:
+        cart = Cart.objects.get(user=user)
+        cart_items = CartProduct.objects.filter(cart=cart)
+        total = sum([cp.qty * cp.item.item_price for cp in cart_items])
+    except Cart.DoesNotExist:
+        cart_items = []
+        total = 0
 
-    return render(request, 'cart_list.html', {
+    context = {
         'cart_items': cart_items,
-        'total': total
-    })
+        'total': total,
+    }
+    return render(request, 'cart_list.html', context)
 
 
 def increase_quantity(request, item_id):
@@ -413,87 +436,112 @@ def customer_invoice_detail(request, invoice_no):
     })
 
 
-from django.db.models import Sum
-from django.utils.timezone import now
-from datetime import datetime
-from .models import Sale
-
-def sales_report(request):
-    today = now().date()
-
-    # Daily sales
-    daily_sales = Sale.objects.filter(date__date=today)
-    daily_total = daily_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
-
-    # Monthly sales
-    monthly_sales = Sale.objects.filter(date__year=today.year, date__month=today.month)
-    monthly_total = monthly_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
-
-    # Yearly sales
-    yearly_sales = Sale.objects.filter(date__year=today.year)
-    yearly_total = yearly_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
-
-    context = {
-        'daily_sales': daily_sales,
-        'daily_total': daily_total,
-        'monthly_total': monthly_total,
-        'yearly_total': yearly_total,
-    }
-    return render(request, 'sales-report.html', context)
 
 
+# def sales_report(request):
+#     today = now().date()
+
+#     # Daily sales
+#     daily_sales = Sale.objects.filter(date__date=today)
+#     daily_total = daily_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+#     # Monthly sales
+#     monthly_sales = Sale.objects.filter(date__year=today.year, date__month=today.month)
+#     monthly_total = monthly_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+#     # Yearly sales
+#     yearly_sales = Sale.objects.filter(date__year=today.year)
+#     yearly_total = yearly_sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+#     context = {
+#         'daily_sales': daily_sales,
+#         'daily_total': daily_total,
+#         'monthly_total': monthly_total,
+#         'yearly_total': yearly_total,
+#     }
+#     return render(request, 'sales-report.html', context)
+
+
+
+
+
+
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from .models import Cart, CartProduct, Sale, SaleItem, Customer
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
-from django.contrib import messages
-from .models import Customer, CartItem, Sale, SaleItem
-from django.utils.timezone import now
+from django.utils import timezone
 
+
+from django.contrib import messages
 
 @login_required
 def checkout(request):
     user = request.user
-    try:
-        customer = Customer.objects.get(user=user)
-    except Customer.DoesNotExist:
-        messages.warning(request, "Please complete your customer profile.")
-        return redirect('customer_register')
+
+    # ✅ Check if customer profile exists
+    if not hasattr(user, 'customer'):
+        messages.warning(request, "Checkout မလုပ်နိုင်ပါ။ Customer profile မရှိသေးပါ။")
+        return redirect('customer_register')  # or show a form to create profile
 
     try:
         cart = Cart.objects.get(user=user)
-        cart_products = CartProduct.objects.filter(cart=cart)
-    except Cart.DoesNotExist:
-        messages.warning(request, "Your cart is empty.")
-        return redirect('cart_list')
+        cart_items = CartProduct.objects.filter(cart=cart)
 
-    if not cart_products.exists():
-        messages.warning(request, "No items in your cart.")
-        return redirect('cart_list')
+        if not cart_items.exists():
+            messages.warning(request, "Your cart is empty.")
+            return redirect('cart_list')
 
-    total = sum(cp.price for cp in cart_products)
-
-    sale = Sale.objects.create(
-        invoice_no=f'INV-{timezone.now().strftime("%Y%m%d%H%M%S")}',
-        user=user,
-        customer=customer,
-        total_amount=total
-    )
-
-    for cp in cart_products:
-        SaleItem.objects.create(
-            sale=sale,
-            item=cp.item,
-            quantity=cp.qty,
-            price=cp.price
+        sale = Sale.objects.create(
+            invoice_no=f"INV-{timezone.now().strftime('%Y%m%d%H%M%S')}",
+            user=user,
+            customer=user.customer,
+            total_amount=cart.total_amount
         )
 
-        # Reduce item stock
-        cp.item.item_quantity -= cp.qty
-        cp.item.save()
+        for cp in cart_items:
+            SaleItem.objects.create(
+                sale=sale,
+                item=cp.item,
+                quantity=cp.qty,
+                price=cp.price
+            )
+            cp.item.item_quatity -= cp.qty
+            cp.item.save()
 
-    cart_products.delete()
-    cart.total_amount = 0
-    cart.save()
+        cart_items.delete()
+        cart.total_amount = 0
+        cart.save()
 
-    messages.success(request, "Checkout successful.")
-    return render(request, 'checkout.html', {'sale': sale})
+        messages.success(request, "Checkout completed successfully.")
+        return render(request,'checkout.html', {'sale': sale})
+
+    except Cart.DoesNotExist:
+        messages.error(request, "Cart not found.")
+        return redirect('cart_list')
+
+from django.utils.timezone import now
+from django.db.models import Sum
+import datetime
+
+def daily_sales_report(request):
+    today = now().date()
+    sales = Sale.objects.filter(date__date=today)
+    total = sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+    return render(request, 'reports/daily.html', {'sales': sales, 'total': total, 'today': today})
+
+def monthly_sales_report(request):
+    today = now().date()
+    sales = Sale.objects.filter(date__year=today.year, date__month=today.month)
+    total = sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+    return render(request, 'reports/monthly.html', {'sales': sales, 'total': total,'today': today})
+
+def yearly_sales_report(request):
+    today = now().date()
+    sales = Sale.objects.filter(date__year=today.year)
+    total = sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+    return render(request, 'reports/yearly.html', {'sales': sales, 'total': total, 'today': today})

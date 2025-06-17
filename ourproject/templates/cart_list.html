@@ -36,12 +36,12 @@
           <td>
             <div class="d-flex align-items-center">
               <a href="{% url 'decrease_quantity' cart.id %}" class="btn btn-outline-secondary btn-sm">−</a>
-              <input type="text" readonly value="{{ cart.quantity }}" class="form-control text-center mx-1"
+              <input type="text" readonly value="{{ cart.qty }}" class="form-control text-center mx-1"
                 style="width: 50px;">
               <a href="{% url 'increase_quantity' cart.id %}" class="btn btn-outline-secondary btn-sm">+</a>
             </div>
           </td>
-          <td>${{ cart.quantity|multiply:cart.item.item_price }}</td>
+          <td>${{ cart.qty|multiply:cart.item.item_price }}</td>
           <td>
             <a href="{% url 'remove_from_cart' cart.id %}" class="btn btn-outline-danger btn-sm">✕</a>
           </td>

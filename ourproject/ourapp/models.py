@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.utils import timezone
 # Create your models here.
 class Category(models.Model):
     CATEGORY_TYPE_CHOICES = [
@@ -52,9 +52,13 @@ class Item(models.Model):
         return self.item_name
 
 
+
+
 class Cart(models.Model):
-    total_amount =models.PositiveIntegerField(default=0)
-    created_date = models.DateField(auto_now_add= True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='carts')  # 🆕
+    total_amount = models.PositiveIntegerField(default=0)
+    created_date = models.DateField(default=timezone.now)
+
     def update_total_amount(self):
         total_amount = sum(cp.price for cp in self.cartproduct_set.all())
         self.total_amount = total_amount

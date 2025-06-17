@@ -34,7 +34,7 @@
 
                     <td>{{i.item_description|truncatewords:10}}</td>
                     <td>{{i.exp_date}}</td>
-                    <td><button><a href="{% url 'med_updateview' i.id %}" class="btn btn-sm btn-info">edit</a></button>  &nbsp; <button><a href="{% url 'deleteitem' i.id %}" class="btn btn-sm btn-danger">delete</a></button></td> 
+                    <td><button><a href="{% url 'med_updateview' i.id %}" class="btn btn-sm btn-info">edit</a></button>  &nbsp; <button><a href="{% url 'deleteitem' i.id %}" class="btn btn-sm btn-danger">delete</a></button> &nbsp;<button><a href="{% url 'add_to_cart' i.id %}" class="btn btn-sm btn-info">Add to cart</a></button></td> 
 
                 </tr>
                 {% endfor %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">📊 Yearly Sales Report</h2>
+  
+  <div class="mb-3">
+    <strong>Year:</strong> {{ today.year }}
+  </div>
+  
+  <div class="alert alert-info">
+    <strong>Total Sales:</strong> {{ total }} Ks
+  </div>
+
+  {% if sales %}
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>Invoice No</th>
+          <th>Customer</th>
+          <th>Total Amount</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in sales %}
+        <tr>
+          <td>{{ sale.invoice_no }}</td>
+          <td>{{ sale.customer.user.get_full_name }}</td>
+          <td>{{ sale.total_amount }} Ks</td>
+          <td>{{ sale.date|date:"d M Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-warning text-center">
+    No sales found for this year.
+  </div>
+  {% endif %}
+
+  <div class="mt-4 text-center">
+    <a href="{% url 'homeview' %}" class="btn btn-primary">← Back to Home</a>
+  </div>
+</div>
+{% endblock %}

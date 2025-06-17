@@ -63,7 +63,10 @@ urlpatterns = [
     path('cart/remove/<int:item_id>/',remove_from_cart, name='remove_from_cart'),
     
     path('cartlist/', cart_list, name='cart_list'),
-    path('sales-report/',sales_report, name='sales_report'),
+    path('report/daily/', daily_sales_report, name='daily_sales_report'),
+    path('report/monthly/',monthly_sales_report, name='monthly_sales_report'),
+    path('report/yearly/', yearly_sales_report, name='yearly_sales_report'),
+
 ]
 
 

@@ -24,7 +24,7 @@
                         </ul>
                     {% endif %}
 
-                    <form method="POST" action="{% url 'customer_register' %}" id="CustomerRegisterForm" accept-charset="UTF-8" class="contact-form">
+                    <form action="{% url 'customer_register' %}?next={{ request.path }}" id="CustomerRegisterForm" accept-charset="UTF-8" class="contact-form" method="post">
                         {% csrf_token %}
                         <div class="row">
 
