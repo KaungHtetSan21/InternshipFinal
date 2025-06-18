@@ -1,0 +1,13 @@
+<!-- stock_in.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+  <h2>Stock In with Supplier</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Stock In</button>
+  </form>
+</div>
+{% endblock %}

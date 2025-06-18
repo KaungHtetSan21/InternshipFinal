@@ -9,5 +9,5 @@ register = template.Library()
 register = template.Library()
 
 @register.filter
-def multiply(value, arg):
-    return value * arg
+def multiply(qty, price):
+    return qty * price

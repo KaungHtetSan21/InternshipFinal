@@ -11,8 +11,8 @@ class Category(models.Model):
     category_name = models.CharField(max_length=255)
     category_type = models.CharField(max_length=100, choices=CATEGORY_TYPE_CHOICES)
 
-    def str(self):
-        return f"{self.category_name} ({self.get_category_type_display()})"
+    def __str__(self):
+        return self.category_name
     
 class Disease(models.Model):
     item_photo = models.ImageField(upload_to='photos',blank=True, null=True)
@@ -60,8 +60,8 @@ class Cart(models.Model):
     created_date = models.DateField(default=timezone.now)
 
     def update_total_amount(self):
-        total_amount = sum(cp.price for cp in self.cartproduct_set.all())
-        self.total_amount = total_amount
+        total = sum([cp.qty * cp.item.item_price for cp in self.cartproduct_set.all()])
+        self.total_amount = total
         self.save()
     
 class CartProduct(models.Model):
@@ -74,13 +74,13 @@ class CartProduct(models.Model):
 
 
 # models.py
-class CartItem(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+# class CartItem(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     item = models.ForeignKey(Item, on_delete=models.CASCADE)
+#     quantity = models.PositiveIntegerField(default=1)
 
-    def str(self):
-        return f"{self.user.username} - {self.item.item_name}"
+#     def str(self):
+#         return f"{self.user.username} - {self.item.item_name}"
     
 
 class StockHistory(models.Model):
@@ -89,7 +89,8 @@ class StockHistory(models.Model):
         ('out', 'Stock Out'),
     ]
 
-    item = models.ForeignKey('Item', on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, blank=True, null=True)
     action = models.CharField(max_length=10, choices=ACTION_CHOICES)
     quantity = models.PositiveIntegerField()
     date = models.DateTimeField(auto_now_add=True)

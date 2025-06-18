@@ -134,14 +134,31 @@ def medview(request):
     context ={'med_data':med_data}
     return render(request,'medview.html', context )
 
-def medlist(request,id):
-    category_data = Category.objects.get(id=int(id))
+# def medlist(request,id):
+#     category_data = Category.objects.get(id=int(id))
+#     ml_data = Item.objects.filter(category=category_data)
+
+#     paginator = Paginator(ml_data, 1)
+#     page_number = request.GET.get("page")
+#     page_obj = paginator.get_page(page_number)
+#     return render(request, 'med-grid-4.html', {'ml_data':ml_data, 'page_obj':page_obj})
+
+
+
+def medlist(request, id):
+    category_data = get_object_or_404(Category, id=id)
     ml_data = Item.objects.filter(category=category_data)
 
-    paginator = Paginator(ml_data, 1)
+    paginator = Paginator(ml_data, 1)  # Show 8 products per page
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    return render(request, 'med-grid-4.html', {'ml_data':ml_data, 'page_obj':page_obj})
+
+    context = {
+        'category': category_data,
+        'ml_data': ml_data,
+        'page_obj': page_obj
+    }
+    return render(request, 'med-grid-4.html', context)
 
 
 def meddetail(request,id):
@@ -168,7 +185,7 @@ def addproduct(request):
 def deleteitem(request,id):
     item_delete = Item.objects.filter(id=id)
     item_delete.delete()
-    return redirect('/medicineview//')
+    return redirect('/medicineview/')
 
 def med_updateview(request,id):
     # pid = request.GET['pid']
@@ -184,7 +201,7 @@ def med_updateview(request,id):
         
         if form.is_valid():
             form.save()
-        return redirect('/medicineview//')
+        return redirect('/medicineview/')
     context = {'form': form}
     return render  (request,'addproduct.html',context)
 
@@ -376,42 +393,111 @@ def cart_list(request):
     user = request.user
     try:
         cart = Cart.objects.get(user=user)
+        cart.update_total_amount()
+        cart.refresh_from_db()
         cart_items = CartProduct.objects.filter(cart=cart)
-        total = sum([cp.qty * cp.item.item_price for cp in cart_items])
+        
+        total = cart.total_amount
     except Cart.DoesNotExist:
         cart_items = []
         total = 0
 
     context = {
+        'cart':cart,
         'cart_items': cart_items,
         'total': total,
     }
     return render(request, 'cart_list.html', context)
 
 
+@login_required
 def increase_quantity(request, item_id):
-    cart = request.session.get('cart', {})
-    if str(item_id) in cart:
-        cart[str(item_id)]['quantity'] += 1
-    request.session['cart'] = cart
+    user = request.user
+    cart = get_object_or_404(Cart, user=user)
+    item = get_object_or_404(Item, id=item_id)
+    cart_product = get_object_or_404(CartProduct, cart=cart, item=item)
+
+    cart_product.qty += 1
+    cart_product.price = cart_product.qty * item.item_price
+    cart_product.save()
+
+    cart.update_total_amount()
+    cart.refresh_from_db()
+
     return redirect('cart_list')
 
+@login_required
 def decrease_quantity(request, item_id):
-    cart = request.session.get('cart', {})
-    if str(item_id) in cart:
-        cart[str(item_id)]['quantity'] -= 1
-        if cart[str(item_id)]['quantity'] <= 0:
-            del cart[str(item_id)]
-    request.session['cart'] = cart
+    user = request.user
+    cart = get_object_or_404(Cart, user=user)
+    item = get_object_or_404(Item, id=item_id)
+    cart_product = get_object_or_404(CartProduct, cart=cart, item=item)
+
+    if cart_product.qty > 1:
+        cart_product.qty -= 1
+        cart_product.price = cart_product.qty * item.item_price
+        cart_product.save()
+    else:
+        cart_product.delete()
+
+    cart.update_total_amount()
+    cart.refresh_from_db()
     return redirect('cart_list')
 
+@login_required
 def remove_from_cart(request, item_id):
-    cart = request.session.get('cart', {})
-    if str(item_id) in cart:
-        del cart[str(item_id)]
-    request.session['cart'] = cart
+    user = request.user
+    cart = get_object_or_404(Cart, user=user)
+    item = get_object_or_404(Item, id=item_id)
+    try:
+        cart_product = CartProduct.objects.get(cart=cart, item=item)
+        cart_product.delete()
+        cart.update_total_amount()
+    except CartProduct.DoesNotExist:
+        pass
     return redirect('cart_list')
 
+
+
+from django.views.decorators.http import require_POST
+
+@require_POST
+@login_required
+def update_quantity(request, item_id):
+    user = request.user
+    cart = get_object_or_404(Cart, user=user)
+    item = get_object_or_404(Item, id=item_id)
+    cart_product = get_object_or_404(CartProduct, cart=cart, item=item)
+
+    try:
+        qty = int(request.POST.get('quantity', 1))
+        if qty > 0:
+            cart_product.qty = qty
+            cart_product.price = qty * item.item_price
+            cart_product.save()
+        else:
+            cart_product.delete()
+    except ValueError:
+        pass  # invalid input ignored
+
+    cart.update_total_amount()
+    return redirect('cart_list')
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from .models import Cart, CartProduct
+
+@login_required
+def clear_cart(request):
+    user = request.user
+    try:
+        cart = Cart.objects.get(user=user)
+        CartProduct.objects.filter(cart=cart).delete()
+        cart.total_amount = 0
+        cart.save()
+    except Cart.DoesNotExist:
+        pass
+    return redirect('cart_list')
 
 
 from django.contrib.auth.decorators import user_passes_test
@@ -512,7 +598,12 @@ def checkout(request):
             )
             cp.item.item_quatity -= cp.qty
             cp.item.save()
-
+            StockHistory.objects.create(
+                item=cp.item,
+                action='out',
+                quantity=cp.qty,
+                note=f"Checked out by {user.username}"
+            )
         cart_items.delete()
         cart.total_amount = 0
         cart.save()
@@ -545,3 +636,26 @@ def yearly_sales_report(request):
     sales = Sale.objects.filter(date__year=today.year)
     total = sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
     return render(request, 'reports/yearly.html', {'sales': sales, 'total': total, 'today': today})
+
+
+# views.py
+
+@login_required
+def stock_in(request):
+    if request.method == 'POST':
+        form = StockInForm(request.POST)
+        if form.is_valid():
+            stock = form.save()
+            # ✅ Stock တိုး
+            stock.item.item_quatity += stock.quantity
+            stock.item.save()
+
+            messages.success(
+                request,
+                f"{stock.quantity} units of {stock.item.item_name} added from {stock.supplier.name if stock.supplier else 'Unknown Supplier'}."
+            )
+            return redirect('stock_in')
+    else:
+        form = StockInForm()
+
+    return render(request, 'stock_in.html', {'form': form})

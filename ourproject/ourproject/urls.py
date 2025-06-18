@@ -46,6 +46,8 @@ urlpatterns = [
 
     path('diseaseupdateview/<int:id>/', dis_updateview, name= 'dis_updateview'),
     path('medicineupdateview/<int:id>/', med_updateview, name= 'med_updateview'),
+    path('stockin/', stock_in, name= 'stock_in'),
+
     
     # path('addtocart/<int:id>/',addtocart, name='addtocart'),
     # path('cartview/', cartView, name= 'cartView'),
@@ -61,7 +63,10 @@ urlpatterns = [
     path('cart/increase/<int:item_id>/', increase_quantity, name='increase_quantity'),
     path('cart/decrease/<int:item_id>/', decrease_quantity, name='decrease_quantity'),
     path('cart/remove/<int:item_id>/',remove_from_cart, name='remove_from_cart'),
+    path('cart/update/<int:item_id>/',update_quantity, name='update_quantity'),
+    path('cart/clear/', clear_cart, name='clear_cart'),
     
+ 
     path('cartlist/', cart_list, name='cart_list'),
     path('report/daily/', daily_sales_report, name='daily_sales_report'),
     path('report/monthly/',monthly_sales_report, name='monthly_sales_report'),

@@ -16,21 +16,33 @@ class supplier(admin.ModelAdmin):
     list_display = ['id','company_name','company_phnumber']
 
 
-class CustomerAdmin(admin.ModelAdmin):
+class customer(admin.ModelAdmin):
     list_display = ['id', 'user', 'phone', 'address']
+
+
+class stockHistory(admin.ModelAdmin):
+    list_display = ('item', 'supplier','action', 'quantity', 'date', 'note')
+    list_filter = ('supplier','action', 'date')
+    search_fields = ('item__item_name', 'supplier__name', 'note')
+
+
+
+
 
 admin.site.register(Category,category)
 admin.site.register(Disease)
 admin.site.register(Supplier,supplier)
 admin.site.register(Item)
 admin.site.register(Cart,cartview)
-admin.site.register(CartItem)
-admin.site.register(StockHistory)
+# admin.site.register(CartItem)
+# admin.site.register(StockHistory)
 admin.site.register(Sale)
 admin.site.register(SaleItem)
+admin.site.register(Customer,customer)
+admin.site.register(StockHistory,stockHistory)
 
-# from django.contrib import admin
-# from .models import Customer
 
 
-admin.site.register(Customer, CustomerAdmin)
+
+
+
