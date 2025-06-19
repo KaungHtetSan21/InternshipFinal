@@ -13,18 +13,18 @@
       <img src="{{i.item_photo.url}}" class="p-2" alt="" width="300px">
     </div> -->
     <div class="col">
-      {{i.company_name}}
+      {{i.supplier_name}}
     </div>
     <div class="col">
-      {{i.company_phnumber}}
+      {{i.supplier_phnumber}}
     </div>
-    <div class="col">{{i.company_location}}</div>
+    <div class="col">{{i.supplier_location}}</div>
     </div>
     <div class="col">{{i.order_date}}</div>
 
 
     <div class="col">
-    <button><a href="" class="btn btn-sm btn-info">Purchase</a></button>
+    <button><a href="{% url 'stock_in' %}" class="btn btn-sm btn-info">Purchase</a></button>
     </div>
     <!-- <button><a href="{% url 'dis_updateview' i.id %}" class="btn btn-sm btn-info">edit</a></button>  &nbsp; <button><a href="{% url 'deleteitem' i.id %}" class="btn btn-sm btn-danger">delete</a></button>  -->
     <hr>

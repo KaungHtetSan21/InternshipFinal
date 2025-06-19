@@ -652,7 +652,7 @@ def stock_in(request):
 
             messages.success(
                 request,
-                f"{stock.quantity} units of {stock.item.item_name} added from {stock.supplier.name if stock.supplier else 'Unknown Supplier'}."
+                f"{stock.quantity} units of {stock.item.item_name} added from {stock.supplier.supplier.name if stock.supplier else 'Unknown Supplier'}."
             )
             return redirect('stock_in')
     else:

@@ -13,7 +13,7 @@ class cartproductview(admin.ModelAdmin):
     list_display = ['id','item','qty','price']  
 
 class supplier(admin.ModelAdmin):
-    list_display = ['id','company_name','company_phnumber']
+    list_display = ['id','supplier_name','supplier_phnumber']
 
 
 class customer(admin.ModelAdmin):

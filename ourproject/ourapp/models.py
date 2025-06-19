@@ -22,12 +22,12 @@ class Disease(models.Model):
         return self.disease_name
 
 class Supplier(models.Model):
-    company_name = models.CharField(max_length=255)
-    company_phnumber = models.CharField(blank=False)
-    company_location = models.TextField(blank=True, null= True)
+    supplier_name = models.CharField(max_length=255,null= True)
+    supplier_phnumber = models.CharField(blank=False,null= True)
+    supplier_location = models.TextField(blank=True, null= True)
     order_date = models.DateField(auto_now_add=True)
     def __str__(self):
-        return self.company_name
+        return self.supplier_name or "Unnamed Supplier"
     
 
 

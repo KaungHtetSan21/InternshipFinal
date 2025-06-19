@@ -31,7 +31,7 @@ class DiseaseModelForm(forms.ModelForm):
 class CompanyModelForm(forms.ModelForm):
     class Meta:
         model = Supplier
-        fields = ['company_name', 'company_phnumber', 'company_location']
+        fields = ['supplier_name', 'supplier_phnumber', 'supplier_location']
 
 # forms.py
 
