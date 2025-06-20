@@ -122,7 +122,7 @@ class Sale(models.Model):
 
 class SaleItem(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="items")
-    item = models.ForeignKey('Item', on_delete=models.SET_NULL, null=True)
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     def str(self):

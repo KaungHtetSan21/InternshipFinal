@@ -4,7 +4,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>{% block title %}Medic System{% endblock %}</title>
   <!-- CDN CSS -->
   <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" />
@@ -18,208 +18,400 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" /> -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <style>
+    :root {
+      --sidebar-width: 220px;
+      --sidebar-bg: #2c3e50;
+      --sidebar-active-bg: #34495e;
+      --primary-color: #3498db;
+      --text-light: #ecf0f1;
+    }
+
     body {
       margin: 0;
-      padding: 0;
+      padding-top: 50px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     .offcanvas-backdrop {
       z-index: 1040;
     }
 
+    /* Main layout */
+    .main-wrapper {
+      display: flex;
+      flex: 1;
+      margin-top: 56px; /* height of navbar */
+    }
+
     .sidebar-desktop {
-      width: 220px;
-      position: fixed;
-      top: 56px;
-      /* height of navbar */
-      bottom: 0;
-      background: #2c3e50;
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
       overflow-y: auto;
       padding-top: 1rem;
+      height: calc(100vh - 56px);
+      position: fixed;
+      transition: transform 0.3s ease;
     }
 
     .content-wrapper {
-      margin-left: 220px;
+      flex: 1;
       padding: 1rem;
-      margin-top: 56px;
-      /* height of navbar */
+      margin-left: var(--sidebar-width);
+      min-height: calc(100vh - 56px - 56px); /* minus navbar and footer */
     }
 
-    @media (max-width: 991px) {
+    /* Mobile sidebar */
+    .sidebar-mobile {
+      display: none;
+    }
+
+    /* Sidebar styling */
+    .sidebar-nav {
+      padding-left: 0;
+    }
+
+    .sidebar-nav .nav-link {
+      color: var(--text-light);
+      padding: 0.5rem 1rem;
+      margin: 0.25rem 0.5rem;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .sidebar-nav .nav-link:hover,
+    .sidebar-nav .nav-link.active {
+      background-color: var(--sidebar-active-bg);
+      color: white;
+    }
+
+    .sidebar-nav .nav-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Collapsible menu items */
+    .btn-toggle {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      color: var(--text-light);
+      background-color: transparent;
+      border: 0;
+      width: 100%;
+      text-align: left;
+      margin: 0.25rem 0;
+      transition: all 0.2s;
+    }
+
+    .btn-toggle:hover,
+    .btn-toggle:focus {
+      color: white;
+      background-color: var(--sidebar-active-bg);
+    }
+
+    .btn-toggle::before {
+      width: 1.25em;
+      line-height: 0;
+      content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%28255,255,255,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+      transition: transform 0.35s ease;
+      transform-origin: 0.5em 50%;
+      margin-right: 8px;
+    }
+
+    .btn-toggle[aria-expanded="true"] {
+      color: white;
+    }
+
+    .btn-toggle[aria-expanded="true"]::before {
+      transform: rotate(90deg);
+    }
+
+    .btn-toggle-nav {
+      padding-left: 1.5rem;
+    }
+
+    .btn-toggle-nav a {
+      display: inline-flex;
+      padding: 0.35rem 0.5rem;
+      margin-top: 0.125rem;
+      text-decoration: none;
+      color: var(--text-light);
+      border-radius: 4px;
+      transition: all 0.2s;
+      width: calc(100% - 1rem);
+    }
+
+    .btn-toggle-nav a:hover,
+    .btn-toggle-nav a:focus {
+      background-color: var(--sidebar-active-bg);
+      color: white;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 991.98px) {
       .sidebar-desktop {
-        display: none;
+        transform: translateX(-100%);
+      }
+
+      .sidebar-desktop.show-mobile {
+        transform: translateX(0);
+        z-index: 1050;
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
       }
 
       .content-wrapper {
         margin-left: 0;
       }
+
+      .sidebar-overlay {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        display: none;
+      }
+
+      .sidebar-overlay.show {
+        display: block;
+      }
+    }
+
+    /* Navbar styling */
+    .navbar {
+    min-height: 50px;  /* Reduced from default */
+    padding-top: 0.25rem;  /* Reduced vertical padding */
+    padding-bottom: 0.25rem;  /* Reduced vertical padding */
+  }
+
+     .navbar-brand {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    font-size: 1rem;  /* Slightly smaller font */
+  }
+
+     .navbar-nav .nav-link {
+    padding: 0.25rem 0.75rem;  /* More compact padding */
+  }
+
+  .navbar-toggler {
+    padding: 0.25rem 0.5rem;  /* Smaller toggle button */
+  }
+
+  .position-absolute.top-0.start-100 {
+    transform: translate(-50%, -20%) !important;  /* Better badge positioning */
+    font-size: 0.6rem;  /* Smaller badge */
+    padding: 0.15em 0.4em;  /* Tighter badge padding */
+  }
+
+  .dropdown-menu {
+    margin-top: 0.25rem;  /* Reduced spacing from navbar */
+  }
+
+    /* Footer styling */
+    footer {
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   </style>
-
 </head>
 
 <body>
-
   <!-- Navbar (fixed top) -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container-fluid">
-      <!-- Toggle button for mobile sidebar -->
-      <button class="navbar-toggler me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+  <div class="container-fluid px-2"> <!-- Reduced horizontal padding -->
+    <!-- Toggle button -->
+    <button class="navbar-toggler me-1" type="button" id="sidebarToggleMobile"> <!-- Reduced margin -->
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      <!-- Left header content -->
-      <div class="navbar-brand">
-        <i class="fas fa-globe"></i> USD
-        <i class="fas fa-phone ms-3"></i> +440 0(111) 044 833
-      </div>
-
-      <!-- Right header nav -->
-      <div class="ms-auto d-flex align-items-center">
-
-        {% if request.user is not anonymounsuser %}
-        <li><a href="">{{request.user}}</a></li>
-        {% else %}
-        <li><a href="">logout</a></li>
-        {% endif %}
-        <a href="{% url 'customer_register' %}" class="nav-link text-white">CREATE ACCOUNT</a>
-
-        <div class="dropdown position-relative">
-          <a class="nav-link dropdown-toggle position-relative" href="#" role="button" data-bs-toggle="dropdown">
-            <i class="fas fa-bell"></i>
-            {% if expiring_count > 0 %}
-            <span class="badge bg-danger">{{ expiring_count }}</span>
-            {% endif %}
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            {% if expiring_count == 0 %}
-            <li><span class="dropdown-item">No upcoming expiries</span></li>
-            {% else %}
-            {% for item in expiring_items %}
-            <li>
-              <a class="dropdown-item text-danger">
-                {{ item.item_name }} - Exp: {{ item.exp_date|date:"d M Y" }}
-              </a>
-            </li>
-            {% endfor %}
-            {% endif %}
-          </ul>
-        </div>
-
-
-      </div>
+    <!-- Left header content -->
+    <div class="navbar-brand py-0"> <!-- Removed vertical padding -->
+      <i class="fas fa-globe"></i> USD
+      <i class="fas fa-phone ms-2"></i> +440 0(111) 044 833 <!-- Reduced margin -->
     </div>
-  </nav>
 
-  <!-- Offcanvas for Mobile Sidebar -->
-  <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasSidebar">
-    <div class="offcanvas-body bg-dark text-white p-0">
-      <h5 class="p-3">Medic App</h5>
-      <hr class="m-0 bg-secondary">
-      <nav class="nav flex-column">
-        <a class="nav-link text-white" href=""><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a class="nav-link text-white" href=""><i class="fas fa-shopping-cart"></i> Cart</a>
-        <a class="nav-link text-white" href=""><i class="fas fa-plus"></i> Add Medicine</a>
-        <a class="nav-link text-white" href=""><i class="fas fa-pills"></i> Medicines</a>
-        <a class="nav-link text-white" href=""><i class="fas fa-user-plus"></i> Supplier</a>
-        <a class="nav-link text-white" href=""><i class="fas fa-list"></i> Suppliers</a>
-      </nav>
+    <!-- Right header nav -->
+    <div class="ms-auto d-flex align-items-center">
+      {% if request.user is not anonymounsuser %}
+        <li class="nav-item pe-1"><a class="nav-link py-1" href="{% url 'loginview' %}">{{request.user}}</a></li> <!-- Compact padding -->
+      {% else %}
+        <li class="nav-item pe-1"><a class="nav-link py-1" href="{% url 'logoutview' %}">logout</a></li>
+      {% endif %}
+      <a href="{% url 'customer_register' %}" class="nav-link text-white py-1 px-2">CREATE ACCOUNT</a> <!-- Compact padding -->
+
+      <div class="dropdown position-relative ps-1"> <!-- Reduced spacing -->
+        <a class="nav-link dropdown-toggle py-1 px-1" href="#" role="button" data-bs-toggle="dropdown"> <!-- Compact padding -->
+          <i class="fas fa-bell"></i>
+          {% if expiring_count > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ expiring_count }}
+              <span class="visually-hidden">unread notifications</span>
+            </span>
+          {% endif %}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          {% if expiring_count == 0 %}
+            <li><span class="dropdown-item small">No upcoming expiries</span></li> <!-- Smaller text -->
+          {% else %}
+            {% for item in expiring_items %}
+              <li><a class="dropdown-item small text-danger">{{ item.item_name }} - Exp: {{ item.exp_date|date:"d M Y" }}</a></li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
     </div>
   </div>
+</nav>
+
+  <!-- Sidebar Overlay for Mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <!-- Desktop Sidebar -->
-  <div class="sidebar-desktop">
-    <h5 class="text-center text-light">Medic App</h5>
-    <hr class="bg-secondary my-2">
-    <div class="text-center mb-4">
-      <img src="" alt="User" class="rounded-circle mb-2" />
-      <p class="mb-0">{{ request.user.username }}</p>
-    </div>
-    <nav class="nav flex-column">
-      <a class="nav-link text-white" href=""><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-      <a class="nav-link text-white" href=""><i class="fas fa-shopping-cart"></i> Cart</a>
-
-      <button class="btn btn-toggle align-items-center rounded collapsed text-white ps-3 text-start" 
-             data-bs-toggle="collapse" data-bs-target="#medicine-collapse" aria-expanded="false">
-       💊 Medicines
-    </button>
-      <div class="collapse" id="medicine-collapse">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-           <li><a href="{% url 'addproduct' %}" class="link-light d-block py-1">➕ Add Medicine</a></li>
-           <li><a href="{% url 'medview' %}" class="link-light d-block py-1">📋 View Medicines</a></li>
-         </ul>
+  <div class="sidebar-desktop" id="sidebarDesktop">
+    <h5 class="text-center text-light mb-3">Medic App</h5>
+    <hr class="bg-secondary my-2 mx-3">
+    <div class="text-center mb-4 px-3">
+      <div class="d-flex justify-content-center mb-2">
+        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+          <span class="text-white" style="font-size: 2rem;">{{ request.user }}</span>
         </div>
-      <button class="btn btn-toggle align-items-center rounded collapsed text-white ps-3 text-start" 
-             data-bs-toggle="collapse" data-bs-target="#diseases-collapse" aria-expanded="false">
-       💊 Diseases
-    </button>
-      <div class="collapse" id="diseases-collapse">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-           <li><a href="{% url 'adddisease' %}" class="link-light d-block py-1">➕ Add Diseases</a></li>
-           <li><a href="{% url 'dis_view' %}" class="link-light d-block py-1">📋 View Diseases</a></li>
-         </ul>
-        </div>
-        <button class="btn btn-toggle align-items-center rounded collapsed text-white ps-3 text-start" 
-             data-bs-toggle="collapse" data-bs-target="#supplier-collapse" aria-expanded="false">
-       💊 Supplier
-    </button>
-      <div class="collapse" id="supplier-collapse">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-           <li><a href="{% url 'addsupplier' %}" class="link-light d-block py-1">➕ Add Supplier</a></li>
-           <li><a href="{% url 'companyview' %}" class="link-light d-block py-1">📋 View Supplier</a></li>
-         </ul>
-        </div>
-       <button class="btn btn-toggle align-items-center rounded collapsed text-white ps-3 text-start" 
-             data-bs-toggle="collapse" data-bs-target="#supplier-collapse" aria-expanded="false">
-       💊 Reports
-    </button>
-      <div class="collapse" id="supplier-collapse">
-        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-           <li><a href="{% url 'daily_sales_report' %}" class="link-light d-block py-1">📋 Daily Sales Report</a></li>
-           <li><a href="{% url 'monthly_sales_report' %}" class="link-light d-block py-1">📋 Monthly Sales Report</a></li>
-          <li><a href="{% url 'yearly_sales_report' %}" class="link-light d-block py-1">📋 Yearly Sales Report</a></li>
-
-         </ul>
-        </div>
-
-
+      </div>
+      <p class="mb-0 text-white">{{ request.user }}</p>
       
+    </div>
+    <nav class="nav flex-column sidebar-nav">
+      <a class="nav-link" href=""><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a class="nav-link" href=""><i class="fas fa-shopping-cart"></i> Cart</a>
 
-      <a class="nav-link text-white" href="{% url 'cart_list' %}"><i class="fas fa-plus"></i> Your Cart List</a>
-      <a class="nav-link text-white" href=""><i class="fas fa-pills"></i> Medicines</a>
-      <a class="nav-link text-white" href=""><i class="fas fa-user-plus"></i> Supplier</a>
-      <a class="nav-link text-white" href=""><i class="fas fa-list"></i> Suppliers</a>
+      <button class="btn-toggle" data-bs-toggle="collapse" data-bs-target="#medicine-collapse" aria-expanded="false">
+        <i class="fas fa-pills me-2"></i> Medicines
+      </button>
+      <div class="collapse" id="medicine-collapse">
+        <ul class="btn-toggle-nav list-unstyled">
+          <li><a href="{% url 'addproduct' %}" class="d-block"><i class="fas fa-plus me-2"></i> Add Medicine</a></li>
+          <li><a href="{% url 'medview' %}" class="d-block"><i class="fas fa-list me-2"></i> View Medicines</a></li>
+        </ul>
+      </div>
+
+      <button class="btn-toggle" data-bs-toggle="collapse" data-bs-target="#diseases-collapse" aria-expanded="false">
+        <i class="fas fa-disease me-2"></i> Diseases
+      </button>
+      <div class="collapse" id="diseases-collapse">
+        <ul class="btn-toggle-nav list-unstyled">
+          <li><a href="{% url 'adddisease' %}" class="d-block"><i class="fas fa-plus me-2"></i> Add Diseases</a></li>
+          <li><a href="{% url 'dis_view' %}" class="d-block"><i class="fas fa-list me-2"></i> View Diseases</a></li>
+        </ul>
+      </div>
+
+      <button class="btn-toggle" data-bs-toggle="collapse" data-bs-target="#supplier-collapse" aria-expanded="false">
+        <i class="fas fa-truck me-2"></i> Supplier
+      </button>
+      <div class="collapse" id="supplier-collapse">
+        <ul class="btn-toggle-nav list-unstyled">
+          <li><a href="{% url 'addsupplier' %}" class="d-block"><i class="fas fa-plus me-2"></i> Add Supplier</a></li>
+          <li><a href="{% url 'companyview' %}" class="d-block"><i class="fas fa-list me-2"></i> View Supplier</a></li>
+        </ul>
+      </div>
+
+      <button class="btn-toggle" data-bs-toggle="collapse" data-bs-target="#reports-collapse" aria-expanded="false">
+        <i class="fas fa-chart-bar me-2"></i> Reports
+      </button>
+      <div class="collapse" id="reports-collapse">
+        <ul class="btn-toggle-nav list-unstyled">
+          <li><a href="{% url 'daily_sales_report' %}" class="d-block"><i class="fas fa-file-alt me-2"></i> Daily Sales</a></li>
+          <li><a href="{% url 'monthly_sales_report' %}" class="d-block"><i class="fas fa-file-alt me-2"></i> Monthly Sales</a></li>
+          <li><a href="{% url 'yearly_sales_report' %}" class="d-block"><i class="fas fa-file-alt me-2"></i> Yearly Sales</a></li>
+        </ul>
+      </div>
+
+      <a class="nav-link" href="{% url 'cart_list' %}"><i class="fas fa-shopping-basket"></i> Your Cart List</a>
+      <a class="nav-link" href=""><i class="fas fa-pills"></i> Medicines</a>
+      <a class="nav-link" href=""><i class="fas fa-user-plus"></i> Supplier</a>
+      <a class="nav-link" href=""><i class="fas fa-list"></i> Suppliers</a>
     </nav>
   </div>
 
   <!-- Content Area -->
   <div class="content-wrapper">
-    {% block content %}{% endblock content %}
+    {% block content %} {% endblock content %}
   </div>
 
   <!-- Footer -->
-  <footer class="bg-dark text-white text-center py-2 fixed-bottom">
+  <footer class="bg-dark text-white text-center py-2">
     <small>&copy; 2025 Medic System</small>
   </footer>
 
   <!-- JS Scripts -->
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   <script src="{% static 'assets/js/vendor/jquery-3.3.1.min.js' %}"></script>
   <script src="{% static 'assets/js/vendor/jquery.cookie.js' %}"></script>
   <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
   <script src="{% static 'assets/js/vendor/wow.min.js' %}"></script>
-  <!-- Including Javascript -->
   <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
   <script src="{% static 'assets/js/plugins.js' %}"></script>
   <script src="{% static 'assets/js/popper.min.js' %}"></script>
   <script src="{% static 'assets/js/lazysizes.js' %}"></script>
   <script src="{% static 'assets/js/main.js' %}"></script>
 
+  <script>
+    // Mobile sidebar toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebarToggle = document.getElementById('sidebarToggleMobile');
+      const sidebarDesktop = document.getElementById('sidebarDesktop');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      
+      sidebarToggle.addEventListener('click', function() {
+        sidebarDesktop.classList.toggle('show-mobile');
+        sidebarOverlay.classList.toggle('show');
+      });
+      
+      sidebarOverlay.addEventListener('click', function() {
+        sidebarDesktop.classList.remove('show-mobile');
+        sidebarOverlay.classList.remove('show');
+      });
+      
+      // Close sidebar when clicking on a link (for mobile)
+      const navLinks = document.querySelectorAll('.sidebar-nav a');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          if (window.innerWidth < 992) {
+            sidebarDesktop.classList.remove('show-mobile');
+            sidebarOverlay.classList.remove('show');
+          }
+        });
+      });
+      
+      // Highlight active menu item
+      const currentUrl = window.location.pathname;
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentUrl) {
+          link.classList.add('active');
+          // Expand parent collapse if this is a child item
+          const collapse = link.closest('.collapse');
+          if (collapse) {
+            collapse.classList.add('show');
+            const btnToggle = document.querySelector(`[data-bs-target="#${collapse.id}"]`);
+            if (btnToggle) {
+              btnToggle.setAttribute('aria-expanded', 'true');
+            }
+          }
+        }
+      });
+    });
+  </script>
 </body>
-
 </html>
