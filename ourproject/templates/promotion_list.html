@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-primary">📦 Expiring Medicines (Within 90 Days)</h3>
+    <a href="{% url 'homeview' %}" class="btn btn-secondary">← Back to Home</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover table-striped align-middle border">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Image</th>
+          <th scope="col">Medicine Name</th>
+          <th scope="col">Brand</th>
+          <th scope="col">Expire Date</th>
+          <th scope="col">Stock</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr class="{% if item.exp_date <= today %}table-danger{% endif %}">
+            <td>
+              <img src="{{ item.item_photo.url }}" alt="med" class="rounded" width="60" height="60">
+            </td>
+            <td class="fw-semibold">{{ item.item_name }}</td>
+            <td>{{ item.brand_name|default:"-" }}</td>
+            <td>
+              <span class="badge bg-warning text-dark">{{ item.exp_date }}</span>
+            </td>
+            <td>{{ item.item_quantity }}</td>
+            <td> <span><i><button type="submit" class="btn btn-dark">Add to Promotion Area</button></i></span></td>
+   
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-muted">🎉 No expiring items found in the next 90 days.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -596,7 +596,7 @@ def checkout(request):
                 quantity=cp.qty,
                 price=cp.price
             )
-            cp.item.item_quatity -= cp.qty
+            cp.item.item_quantity -= cp.qty
             cp.item.save()
             StockHistory.objects.create(
                 item=cp.item,
@@ -647,15 +647,26 @@ def stock_in(request):
         if form.is_valid():
             stock = form.save()
             # ✅ Stock တိုး
-            stock.item.item_quatity += stock.quantity
+            stock.item.item_quantity += stock.quantity
             stock.item.save()
 
             messages.success(
                 request,
-                f"{stock.quantity} units of {stock.item.item_name} added from {stock.supplier.supplier.name if stock.supplier else 'Unknown Supplier'}."
+                f"{stock.item.item_quantity} units of {stock.item.item_name} added from {stock.supplier if stock.supplier else 'Unknown Supplier'}."
             )
             return redirect('stock_in')
     else:
         form = StockInForm()
 
     return render(request, 'stock_in.html', {'form': form})
+
+
+from datetime import timedelta
+
+@login_required
+def promotion_items(request):
+    today = timezone.now().date()
+    upcoming_exp = today + timedelta(days=90)
+    items = Item.objects.filter(exp_date__lte=upcoming_exp)
+
+    return render(request, 'promotion_list.html', {'items': items,'today': today})

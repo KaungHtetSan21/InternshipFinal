@@ -27,6 +27,8 @@ class Supplier(models.Model):
     supplier_location = models.TextField(blank=True, null= True)
     order_date = models.DateField(auto_now_add=True)
     def __str__(self):
+        
+    
         return self.supplier_name or "Unnamed Supplier"
     
 
@@ -38,7 +40,7 @@ class Item(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete= models.CASCADE, blank=True, null=True)
     item_photo = models.ImageField(upload_to='photos')
     item_name = models.CharField(max_length=255)
-    item_quatity =models.PositiveIntegerField()
+    item_quantity =models.PositiveIntegerField()
     item_price = models.PositiveIntegerField()
     purcharse_price = models.PositiveIntegerField(default=0)
     item_description = models.TextField()
@@ -69,7 +71,8 @@ class CartProduct(models.Model):
     item = models.ForeignKey(Item,on_delete=models.CASCADE)
     qty = models.PositiveIntegerField(default=0)
     price = models.PositiveIntegerField(default=0)
- 
+    def __str__(self):
+        return self.item
 
 
 
@@ -97,7 +100,7 @@ class StockHistory(models.Model):
     note = models.TextField(blank=True, null=True)
 
     def str(self):
-        return f"{self.item.item_name} - {self.get_action_display()} - {self.quantity}"
+        return f"{self.item.item_name} - {self.quantity}"
     
 
     
@@ -118,7 +121,7 @@ class Sale(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     def str(self):
-        return f"Invoice {self.invoice_no}"
+        return f"Invoice {self.invoice_no} - {self.customer } - {self.total_amount}"
 
 class SaleItem(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="items")

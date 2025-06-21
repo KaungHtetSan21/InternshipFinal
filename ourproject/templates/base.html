@@ -22,9 +22,9 @@
   <style>
     :root {
       --sidebar-width: 220px;
-      --sidebar-bg: #2c3e50;
-      --sidebar-active-bg: #34495e;
-      --primary-color: #3498db;
+      --sidebar-bg: #000;
+      --sidebar-active-bg: #de1435;
+      --primary-color: #293136;
       --text-light: #ecf0f1;
     }
 
@@ -177,7 +177,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(33, 26, 26, 0.5);
         z-index: 1040;
         display: none;
       }
@@ -268,7 +268,7 @@
             <li><span class="dropdown-item small">No upcoming expiries</span></li> <!-- Smaller text -->
           {% else %}
             {% for item in expiring_items %}
-              <li><a class="dropdown-item small text-danger">{{ item.item_name }} - Exp: {{ item.exp_date|date:"d M Y" }}</a></li>
+              <li><a href="{% url 'promotion_items' %}" class="dropdown-item small text-danger">{{ item.item_name }} - Exp: {{ item.exp_date|date:"d M Y" }}</a></li>
             {% endfor %}
           {% endif %}
         </ul>
@@ -283,11 +283,11 @@
   <!-- Desktop Sidebar -->
   <div class="sidebar-desktop" id="sidebarDesktop">
     <h5 class="text-center text-light mb-3">Medic App</h5>
-    <hr class="bg-secondary my-2 mx-3">
+    <hr class="bg-info my-2 mx-3">
     <div class="text-center mb-4 px-3">
       <div class="d-flex justify-content-center mb-2">
-        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-          <span class="text-white" style="font-size: 2rem;">{{ request.user }}</span>
+        <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+          <span class="text-white" style="font-size: 2rem;"></span>
         </div>
       </div>
       <p class="mb-0 text-white">{{ request.user }}</p>
@@ -339,13 +339,13 @@
       </div>
 
       <a class="nav-link" href="{% url 'cart_list' %}"><i class="fas fa-shopping-basket"></i> Your Cart List</a>
-      <a class="nav-link" href=""><i class="fas fa-pills"></i> Medicines</a>
-      <a class="nav-link" href=""><i class="fas fa-user-plus"></i> Supplier</a>
-      <a class="nav-link" href=""><i class="fas fa-list"></i> Suppliers</a>
+      <!-- <a class="nav-link" href=""><i class="fas fa-pills"></i> Medicines</a>
+      <a class="nav-link" href=""><i class="fas fa-user-plus"></i> Supplier</a> -->
+       <a class="nav-link" href=""><i class="fas fa-list"></i>Promotion Area</a>
     </nav>
   </div>
 
-  <!-- Content Area -->
+ 
   <div class="content-wrapper">
     {% block content %} {% endblock content %}
   </div>

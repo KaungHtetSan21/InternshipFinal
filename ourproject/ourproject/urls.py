@@ -71,7 +71,7 @@ urlpatterns = [
     path('report/daily/', daily_sales_report, name='daily_sales_report'),
     path('report/monthly/',monthly_sales_report, name='monthly_sales_report'),
     path('report/yearly/', yearly_sales_report, name='yearly_sales_report'),
-
+    path('promotion-items/', promotion_items, name='promotion_items'),
 ]
 
 

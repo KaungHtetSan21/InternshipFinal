@@ -23,12 +23,14 @@
         <img src="{{ mdetail_data.item_photo.url }}" width="200px"><br>
 
         {{ mdetail_data.item_name|upper }}<br>
-        {{ mdetail_data.item_quatity|upper }} <br>
+        {{ mdetail_data.item_quantity|upper }} <br>
         {{ mdetail_data.item_price|upper }} <br>
         {{ mdetail_data.item_description|upper }} <br>
         {{ mdetail_data.exp_date|upper }} <br>
         
-        <a href="{% url 'add_to_cart' mdetail_data.id %}" class="btn btn-success">Add to Cart</a>     
+        <a href="{% url 'add_to_cart' mdetail_data.id %}" class="btn btn-success">Add to Cart</a>
+        <a href="{% url 'add_to_cart' mdetail_data.id %}" class="btn btn-info">Add to Promotion Area </a>     
+     
       </div>
     
 

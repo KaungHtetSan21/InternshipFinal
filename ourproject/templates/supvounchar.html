@@ -1,47 +1,55 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
-
 {% block content %}
-
-
-<div class="container">
-    <div class="table-responsive">
-        <table class="table">
-            <h3>List of Medicine</h3>
-            <thead>
-                <tr>
-                    <th scope="col">No</th>
-                    <th scope="col">Product</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Amount</th>
-                    <th scope="col"> Price</th>
-                    <th scope="col">Purcharse Company</th>
-                    <th scope="col">Added Date</th>
-                    <th scope="col">&nbsp;Actions</th>
-                </tr>
-            </thead>
-            
-            <tbody>
-                {% for i in supvounchar_data  %}
-                <tr>
-                    <th scope="row">{{i.id}}</th>
-                    <td> <img src="{{i.item_photo.url}}" width="100px" alt="">   </td>
-                    <td>{{i.item_name}}</td>
-                    <td>{{i.item_quatity}}</td>
-                    <td>{{i.purcharse_price}}</td>
-
-                    <td>{{i.supplier}}</td>
-                    <td>{{i.exp_date}}</td>
-                    <td><button><a href="{% url 'med_updateview' i.id %}" class="btn btn-sm btn-info">edit</a></button>  &nbsp; <button><a href="{% url 'deleteitem' i.id %}" class="btn btn-sm btn-danger">delete</a></button> &nbsp;<button><a href="" class="btn btn-sm btn-info">Purcharse</a></button></td> 
-
-                </tr>
-                {% endfor %}
-            </tbody>
-            
-        </table>
+<div class="container mt-5">
+    <div class="card shadow rounded">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">📦 List of Medicines</h4>
+            <a href="" class="btn btn-light btn-sm">+ Add New</a>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>No</th>
+                        <th>Product</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Price</th>
+                        <th>Purcharse Company</th>
+                        <th>Added Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in supvounchar_data %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <img src="{{ i.item_photo.url }}" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover;" alt="Medicine">
+                        </td>
+                        <td>{{ i.item_name }}</td>
+                        <td>{{ i.item_quantity }}</td>
+                        <td>${{ i.purcharse_price }}</td>
+                        <td>{{ i.supplier }}</td>
+                        <td>{{ i.exp_date }}</td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{% url 'med_updateview' i.id %}" class="btn btn-sm btn-outline-info">✏️ Edit</a>
+                                <a href="{% url 'deleteitem' i.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure to delete this item?');">🗑️ Delete</a>
+                                <a href="#" class="btn btn-sm btn-outline-success">💰 Purcharse</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-muted">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-
 {% endblock content %}
