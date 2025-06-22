@@ -24,7 +24,7 @@
         {% for item in items %}
           <tr class="{% if item.exp_date <= today %}table-danger{% endif %}">
             <td>
-              <img src="{{ item.item_photo.url }}" alt="med" class="rounded" width="60" height="60">
+              <img src="{{ item.item_photo1.url }}" alt="med" class="rounded" width="60" height="60">
             </td>
             <td class="fw-semibold">{{ item.item_name }}</td>
             <td>{{ item.brand_name|default:"-" }}</td>

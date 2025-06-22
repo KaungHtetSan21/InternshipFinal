@@ -13,7 +13,9 @@ class MedicineModelForm(forms.ModelForm):
         'category': forms.Select(attrs={'class': 'form-control'}),
         'disease': forms.Select(attrs={'class': 'form-control'}),
         'supplier': forms.Select(attrs={'class': 'form-control'}),  # ဒီထဲလည်းထည့်ဖို့လိုတယ်
-        'item_photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        'item_photo1': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        'item_photo2': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+     
         'item_name': forms.TextInput(attrs={'class': 'form-control'}),
         'item_quantity': forms.NumberInput(attrs={'class': 'form-control'}),
         'item_price': forms.NumberInput(attrs={'class': 'form-control'}),
