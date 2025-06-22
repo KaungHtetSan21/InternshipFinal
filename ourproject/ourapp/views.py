@@ -670,3 +670,40 @@ def promotion_items(request):
     items = Item.objects.filter(exp_date__lte=upcoming_exp)
 
     return render(request, 'promotion_list.html', {'items': items,'today': today})
+
+
+@login_required
+def customer_list(request):
+    customers = Customer.objects.all().select_related('user')  # Efficient query
+    return render(request, 'customer_list.html', {'customers': customers})
+
+
+@login_required
+def customer_profile_detail(request, pk):
+    
+    customer = get_object_or_404(Customer, pk=pk)  # logged-in user's profile
+    
+    sales = Sale.objects.filter(customer=customer).order_by('-date')
+
+    return render(request, 'customer_profile.html', {
+        'customer': customer,
+        'sales': sales,
+    })
+
+def customerproduct_list(request):
+    
+    # category_data = get_object_or_404(Category, id=id)
+    cpl_data = Item.objects.all()
+
+    paginator = Paginator(cpl_data, 8)  # Show 2 products per page
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        # 'category': category_data,
+        'cpl_data': cpl_data,
+        'page_obj': page_obj
+    }
+    
+
+    return render(request,'customer_productlist.html',context)

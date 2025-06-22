@@ -47,8 +47,13 @@ urlpatterns = [
     path('diseaseupdateview/<int:id>/', dis_updateview, name= 'dis_updateview'),
     path('medicineupdateview/<int:id>/', med_updateview, name= 'med_updateview'),
     path('stockin/', stock_in, name= 'stock_in'),
+    
 
     
+    path('customers/', customer_list, name='customer_list'),
+    path('customers/<int:pk>/', customer_profile_detail, name='customer_profile_detail'),  # Profile view
+    path('customerproduct_list/', customerproduct_list, name='customerproduct_list'),
+
     # path('addtocart/<int:id>/',addtocart, name='addtocart'),
     # path('cartview/', cartView, name= 'cartView'),
     # path('cart/increase/<int:id>/',increase_qty, name='increase_qty'),

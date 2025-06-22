@@ -2,6 +2,22 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 # Create your models here.
+
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+# class User(AbstractUser):
+#     ROLE_CHOICES = (
+#         ('admin', 'Admin'),
+#         ('pharmacist', 'Pharmacist'),
+#         ('sales Staff', 'Sales Staff'),
+#         ('customer','Customer'),
+#     )
+#     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
+
+#     def __str__(self):
+#         return f"{self.username} ({self.role})"
+
 class Category(models.Model):
     CATEGORY_TYPE_CHOICES = [
         ('burmese', 'Burmese Medicine'),
@@ -27,18 +43,15 @@ class Supplier(models.Model):
     supplier_location = models.TextField(blank=True, null= True)
     order_date = models.DateField(auto_now_add=True)
     def __str__(self):
-        
-    
         return self.supplier_name or "Unnamed Supplier"
     
-
-
-
 class Item(models.Model):
     category = models.ForeignKey(Category, on_delete= models.CASCADE)
     disease = models.ForeignKey(Disease, on_delete= models.CASCADE)
     supplier = models.ForeignKey(Supplier, on_delete= models.CASCADE, blank=True, null=True)
-    item_photo = models.ImageField(upload_to='photos')
+    item_photo1 = models.ImageField(upload_to='photos')
+    item_photo2 = models.ImageField(upload_to='photos')
+
     item_name = models.CharField(max_length=255)
     item_quantity =models.PositiveIntegerField()
     item_price = models.PositiveIntegerField()
@@ -138,5 +151,8 @@ class SaleItem(models.Model):
 
     # def str(self):
     #     return f"{self.item.item_name} - {self.quantity} pcs"
+
+
+
 
 

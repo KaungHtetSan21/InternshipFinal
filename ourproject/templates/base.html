@@ -99,7 +99,7 @@
     /* Collapsible menu items */
     .btn-toggle {
       display: inline-flex;
-      align-items: center;
+      align-items: left;
       padding: 0.5rem 1rem;
       font-weight: 500;
       color: var(--text-light);
@@ -185,6 +185,8 @@
       .sidebar-overlay.show {
         display: block;
       }
+
+      
     }
 
     /* Navbar styling */
@@ -204,9 +206,17 @@
     padding: 0.25rem 0.75rem;  /* More compact padding */
   }
 
-  .navbar-toggler {
-    padding: 0.25rem 0.5rem;  /* Smaller toggle button */
-  }
+.navbar-toggler {
+  position: fixed;              /* Fixed position so it sticks to top-left */
+  top: 10px;                    /* Space from top */
+  left: 10px;                   /* Space from left */
+  padding: 0.25rem 0.5rem;      /* Smaller toggle button */
+  z-index: 1051;                /* Overlays most other elements */
+  background-color: #1b1a1a;    /* Optional: visible background */
+  border: 1px solid #ccc;       /* Optional: border */
+  border-radius: 5px;           /* Rounded corners */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Optional shadow */
+}
 
   .position-absolute.top-0.start-100 {
     transform: translate(-50%, -20%) !important;  /* Better badge positioning */
@@ -294,7 +304,16 @@
       
     </div>
     <nav class="nav flex-column sidebar-nav">
-      <a class="nav-link" href=""><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <button class="btn-toggle" data-bs-toggle="collapse" data-bs-target="#customer-collapse" aria-expanded="false">
+        <i class="fas fa-chart-bar me-2"></i> Dashboard
+      </button>
+      <div class="collapse" id="customer-collapse"> 
+        <ul class="btn-toggle-nav list-unstyled">
+          <li><a href="{% url 'customer_list' %}" class="d-block"><i class="fas fa-file-alt me-2"></i> Admin Dashboard</a></li>
+          <li><a href="{% url 'monthly_sales_report' %}" class="d-block"><i class="fas fa-file-alt me-2"></i>  User Dashboard </a></li>
+        </ul>
+      </div>
+
       <a class="nav-link" href=""><i class="fas fa-shopping-cart"></i> Cart</a>
 
       <button class="btn-toggle" data-bs-toggle="collapse" data-bs-target="#medicine-collapse" aria-expanded="false">
@@ -335,6 +354,15 @@
           <li><a href="{% url 'daily_sales_report' %}" class="d-block"><i class="fas fa-file-alt me-2"></i> Daily Sales</a></li>
           <li><a href="{% url 'monthly_sales_report' %}" class="d-block"><i class="fas fa-file-alt me-2"></i> Monthly Sales</a></li>
           <li><a href="{% url 'yearly_sales_report' %}" class="d-block"><i class="fas fa-file-alt me-2"></i> Yearly Sales</a></li>
+        </ul>
+      </div>
+      <button class="btn-toggle" data-bs-toggle="collapse" data-bs-target="#customer-collapse" aria-expanded="false">
+        <i class="fas fa-chart-bar me-2"></i> Customers
+      </button>
+      <div class="collapse" id="customer-collapse"> 
+        <ul class="btn-toggle-nav list-unstyled">
+          <li><a href="{% url 'customer_list' %}" class="d-block"><i class="fas fa-file-alt me-2"></i> Customer List</a></li>
+          <li><a href="{% url 'monthly_sales_report' %}" class="d-block"><i class="fas fa-file-alt me-2"></i>  my cart history</a></li>
         </ul>
       </div>
 

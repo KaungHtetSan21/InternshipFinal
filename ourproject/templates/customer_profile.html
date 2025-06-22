@@ -1,0 +1,29 @@
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>👤 Customer Profile</h2>
+  <p><strong>Name:</strong> {{ customer.user.get_full_name }}</p>
+  <p><strong>Email:</strong> {{ customer.user.email }}</p>
+  <p><strong>Phone:</strong> {{ customer.phone }}</p>
+
+  <h3 class="mt-4">🛒 Purchase History</h3>
+  {% for sale in sales %}
+    <div class="card mb-3">
+      <div class="card-header">
+        Invoice: {{ sale.invoice_no }} | Date: {{ sale.date|date:"d M Y H:i" }} | Total: {{ sale.total_amount }} Ks
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for item in sale.items.all %}
+          <li class="list-group-item">
+            {{ item.item.item_name }} - {{ item.quantity }} pcs × {{ item.price }} Ks
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% empty %}
+    <p class="text-muted">No purchases yet.</p>
+  {% endfor %}
+</div>
+{% endblock content %}
